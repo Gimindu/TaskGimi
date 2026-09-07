@@ -85,9 +85,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.removeItem('taskgimi_token');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('taskgimi_token');
+    }
     setToken(null);
     setUser(null);
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   };
 
   const clearError = () => setError(null);
