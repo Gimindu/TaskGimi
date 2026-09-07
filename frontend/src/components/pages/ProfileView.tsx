@@ -189,61 +189,61 @@ export function ProfileView() {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8 pb-16 sm:pb-8">
         {/* Profile Hero Header Card */}
-        <div className="bg-[#141417] border border-[#242429] rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div className="bg-[#141417] border border-[#242429] rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
           {/* Subtle Ambient Background Glow */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff9f1c]/10 blur-3xl rounded-full pointer-events-none -mr-20 -mt-20" />
 
           <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
               {/* Profile Avatar */}
               <div className="relative">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-[#ff9f1c] via-amber-400 to-amber-200 text-black font-heading font-black text-4xl flex items-center justify-center shadow-lg uppercase ring-4 ring-[#ff9f1c]/20">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#ff9f1c] via-amber-400 to-amber-200 text-black font-heading font-black text-3xl sm:text-4xl flex items-center justify-center shadow-lg uppercase ring-4 ring-[#ff9f1c]/20">
                   {user.name.charAt(0)}
                 </div>
                 <div
-                  className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#141417] border border-[#242429] flex items-center justify-center text-[#ff9f1c]"
+                  className="absolute bottom-0 right-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#141417] border border-[#242429] flex items-center justify-center text-[#ff9f1c]"
                   title="Approved Account"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
                 </div>
               </div>
 
               {/* User Bio Details */}
               <div className="space-y-2">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                  <h1 className="font-heading font-black text-2xl sm:text-3xl text-white tracking-wide">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h1 className="font-heading font-black text-xl sm:text-3xl text-white tracking-wide">
                     {user.name}
                   </h1>
 
                   {/* Role Badge */}
                   {user.role === 'admin' ? (
-                    <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/40 uppercase tracking-wider">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>System Administrator</span>
+                    <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/40 uppercase tracking-wider">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span>Admin</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-500/20 text-blue-400 border border-blue-500/40 uppercase tracking-wider">
-                      <UserIcon className="w-3.5 h-3.5" />
-                      <span>Workspace Member</span>
+                    <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-extrabold bg-blue-500/20 text-blue-400 border border-blue-500/40 uppercase tracking-wider">
+                      <UserIcon className="w-3 h-3" />
+                      <span>Member</span>
                     </span>
                   )}
 
                   {/* Status Badge */}
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                     <CheckCircle2 className="w-3 h-3" />
                     <span>Approved</span>
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-gray-400 pt-1">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4 text-xs text-gray-400 pt-1">
                   <div className="flex items-center space-x-1.5">
-                    <Mail className="w-4 h-4 text-amber-500" />
+                    <Mail className="w-3.5 h-3.5 text-amber-500" />
                     <span>{user.email}</span>
                   </div>
                   <div className="flex items-center space-x-1.5">
-                    <Calendar className="w-4 h-4 text-amber-500" />
+                    <Calendar className="w-3.5 h-3.5 text-amber-500" />
                     <span>Joined {joinedDateFormatted}</span>
                   </div>
                 </div>
@@ -267,57 +267,57 @@ export function ProfileView() {
         </div>
 
         {/* Task Performance Statistics Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#141417] border border-[#242429] p-5 rounded-3xl flex items-center justify-between shadow-md">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-[#141417] border border-[#242429] p-4 sm:p-5 rounded-3xl flex items-center justify-between shadow-md">
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Assigned Tasks</p>
-              <h3 className="font-heading font-black text-3xl text-white mt-1">{myAssignedTasks.length}</h3>
+              <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Assigned</p>
+              <h3 className="font-heading font-black text-2xl sm:text-3xl text-white mt-0.5">{myAssignedTasks.length}</h3>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-[#18181b] border border-[#27272a] flex items-center justify-center text-[#ff9f1c]">
-              <ListTodo className="w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#18181b] border border-[#27272a] flex items-center justify-center text-[#ff9f1c]">
+              <ListTodo className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
 
-          <div className="bg-[#141417] border border-[#242429] p-5 rounded-3xl flex items-center justify-between shadow-md">
+          <div className="bg-[#141417] border border-[#242429] p-4 sm:p-5 rounded-3xl flex items-center justify-between shadow-md">
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">To Do</p>
-              <h3 className="font-heading font-black text-3xl text-amber-400 mt-1">{assignedTodo}</h3>
+              <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">To Do</p>
+              <h3 className="font-heading font-black text-2xl sm:text-3xl text-amber-400 mt-0.5">{assignedTodo}</h3>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <Flame className="w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <Flame className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
 
-          <div className="bg-[#141417] border border-[#242429] p-5 rounded-3xl flex items-center justify-between shadow-md">
+          <div className="bg-[#141417] border border-[#242429] p-4 sm:p-5 rounded-3xl flex items-center justify-between shadow-md">
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">In Progress</p>
-              <h3 className="font-heading font-black text-3xl text-blue-400 mt-1">{assignedDoing}</h3>
+              <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Doing</p>
+              <h3 className="font-heading font-black text-2xl sm:text-3xl text-blue-400 mt-0.5">{assignedDoing}</h3>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
-              <Clock className="w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+              <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
 
-          <div className="bg-[#141417] border border-[#242429] p-5 rounded-3xl flex items-center justify-between shadow-md">
+          <div className="bg-[#141417] border border-[#242429] p-4 sm:p-5 rounded-3xl flex items-center justify-between shadow-md">
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Completed</p>
-              <h3 className="font-heading font-black text-3xl text-emerald-400 mt-1">{assignedDone}</h3>
+              <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Done</p>
+              <h3 className="font-heading font-black text-2xl sm:text-3xl text-emerald-400 mt-0.5">{assignedDone}</h3>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <CheckCircle className="w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
         </div>
 
         {/* User Tasks Section */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Header Controls: Tab Toggle & Search Filters */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#141417] border border-[#242429] p-4 rounded-3xl">
-            {/* View Scope Tabs */}
-            <div className="flex items-center p-1 bg-[#09090b] rounded-full border border-[#242429]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[#141417] border border-[#242429] p-3 sm:p-4 rounded-3xl">
+            {/* View Scope Tabs (Horizontally Scrollable) */}
+            <div className="flex items-center gap-1 p-1 bg-[#09090b] rounded-full border border-[#242429] overflow-x-auto scrollbar-none shrink-0">
               <button
                 onClick={() => setTaskViewTab('assigned')}
-                className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all shrink-0 ${
                   taskViewTab === 'assigned'
                     ? 'bg-[#ff9f1c] text-black shadow-md'
                     : 'text-gray-400 hover:text-white'
@@ -328,7 +328,7 @@ export function ProfileView() {
 
               <button
                 onClick={() => setTaskViewTab('created')}
-                className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all shrink-0 ${
                   taskViewTab === 'created'
                     ? 'bg-[#ff9f1c] text-black shadow-md'
                     : 'text-gray-400 hover:text-white'
@@ -340,7 +340,7 @@ export function ProfileView() {
               {isAdmin && (
                 <button
                   onClick={() => setTaskViewTab('all')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all shrink-0 ${
                     taskViewTab === 'all'
                       ? 'bg-[#ff9f1c] text-black shadow-md'
                       : 'text-gray-400 hover:text-white'
@@ -352,21 +352,21 @@ export function ProfileView() {
             </div>
 
             {/* Search & Status Filters */}
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3.5 top-2.5" />
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              <div className="relative shrink-0">
+                <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Filter tasks..."
-                  className="pl-9 pr-3.5 py-1.5 bg-[#09090b] border border-[#242429] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c] w-40 sm:w-48"
+                  className="pl-8 pr-3 py-1.5 bg-[#09090b] border border-[#242429] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c] w-36 sm:w-48"
                 />
               </div>
 
               <button
                 onClick={() => setStatusFilter('ALL')}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
                   statusFilter === 'ALL'
                     ? 'bg-white text-black shadow-sm'
                     : 'bg-[#09090b] text-gray-400 border border-[#242429] hover:text-white'
@@ -377,7 +377,7 @@ export function ProfileView() {
 
               <button
                 onClick={() => setStatusFilter('To Do')}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
                   statusFilter === 'To Do'
                     ? 'bg-[#ff9f1c] text-black shadow-sm'
                     : 'bg-[#09090b] text-amber-400 border border-[#242429]'
@@ -388,7 +388,7 @@ export function ProfileView() {
 
               <button
                 onClick={() => setStatusFilter('Doing')}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
                   statusFilter === 'Doing'
                     ? 'bg-blue-500 text-black shadow-sm'
                     : 'bg-[#09090b] text-blue-400 border border-[#242429]'
@@ -399,7 +399,7 @@ export function ProfileView() {
 
               <button
                 onClick={() => setStatusFilter('Done')}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
                   statusFilter === 'Done'
                     ? 'bg-emerald-500 text-black shadow-sm'
                     : 'bg-[#09090b] text-emerald-400 border border-[#242429]'
@@ -412,7 +412,7 @@ export function ProfileView() {
 
           {/* Task Grid Cards */}
           {filteredTasks.length === 0 ? (
-            <div className="bg-[#141417] border border-[#242429] rounded-3xl p-12 text-center flex flex-col items-center justify-center space-y-3">
+            <div className="bg-[#141417] border border-[#242429] rounded-3xl p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-[#18181b] border border-[#27272a] flex items-center justify-center text-gray-500">
                 <Sparkles className="w-6 h-6" />
               </div>

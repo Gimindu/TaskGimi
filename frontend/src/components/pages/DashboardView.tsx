@@ -193,36 +193,50 @@ export function DashboardView() {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6">
-        {/* Workspace Title & Search/Filter Pills */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center space-x-3">
-            <h1 className="font-heading font-black text-2xl tracking-wide text-white uppercase">
-              {isAdmin ? 'All Tasks' : 'My Tasks'}
-            </h1>
-            <span className="px-3 py-1 rounded-full text-xs font-black bg-[#18181b] border border-[#ff9f1c]/40 text-[#ff9f1c]">
-              {filteredTasks.length}
-            </span>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-6">
+        {/* Workspace Title & Search/Filter Bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between sm:justify-start space-x-3">
+            <div className="flex items-center space-x-3">
+              <h1 className="font-heading font-black text-xl sm:text-2xl tracking-wide text-white uppercase">
+                {isAdmin ? 'All Tasks' : 'My Tasks'}
+              </h1>
+              <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-black bg-[#18181b] border border-[#ff9f1c]/40 text-[#ff9f1c]">
+                {filteredTasks.length}
+              </span>
+            </div>
+
+            {/* Quick Refresh on Mobile */}
+            <button
+              onClick={() => {
+                fetchTasks();
+                fetchUsers();
+              }}
+              title="Refresh Board"
+              className="lg:hidden p-1.5 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          {/* Filter Pills Bar */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Filter Pills Bar (Horizontally Scrollable on Mobile) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {/* Search Input Pill */}
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3.5 top-2.5" />
+            <div className="relative shrink-0">
+              <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-2.5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="pl-9 pr-3.5 py-1.5 bg-[#141417] border border-[#242429] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c] w-40 sm:w-48"
+                className="pl-8 pr-3 py-1.5 bg-[#141417] border border-[#242429] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c] w-36 sm:w-48"
               />
             </div>
 
             {/* Filter Status Pills */}
             <button
               onClick={() => setStatusFilter('ALL')}
-              className={`px-4 py-1 rounded-full text-xs font-black transition-all ${
+              className={`px-3.5 py-1 rounded-full text-xs font-black transition-all shrink-0 ${
                 statusFilter === 'ALL'
                   ? 'bg-white text-black shadow-md'
                   : 'bg-[#141417] text-gray-400 border border-[#242429] hover:text-white'
@@ -233,7 +247,7 @@ export function DashboardView() {
 
             <button
               onClick={() => setStatusFilter('To Do')}
-              className={`inline-flex items-center space-x-1 px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+              className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
                 statusFilter === 'To Do'
                   ? 'bg-[#ff9f1c] text-black shadow-md'
                   : 'bg-[#141417] text-amber-400 border border-[#242429] hover:border-amber-500/50'
@@ -245,7 +259,7 @@ export function DashboardView() {
 
             <button
               onClick={() => setStatusFilter('Doing')}
-              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
                 statusFilter === 'Doing'
                   ? 'bg-blue-500 text-black shadow-md'
                   : 'bg-[#141417] text-blue-400 border border-[#242429] hover:border-blue-500/50'
@@ -256,7 +270,7 @@ export function DashboardView() {
 
             <button
               onClick={() => setStatusFilter('Done')}
-              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 ${
                 statusFilter === 'Done'
                   ? 'bg-emerald-500 text-black shadow-md'
                   : 'bg-[#141417] text-emerald-400 border border-[#242429] hover:border-emerald-500/50'
@@ -266,7 +280,7 @@ export function DashboardView() {
             </button>
 
             {/* Sort / Filter by User Selector */}
-            <div className="relative inline-flex items-center">
+            <div className="relative inline-flex items-center shrink-0">
               <Users className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none" />
               <select
                 value={userFilter}
@@ -291,7 +305,7 @@ export function DashboardView() {
                 fetchUsers();
               }}
               title="Refresh Board"
-              className="p-1.5 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors"
+              className="hidden lg:block p-1.5 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors shrink-0"
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>

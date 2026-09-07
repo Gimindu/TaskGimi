@@ -109,11 +109,11 @@ export function AdminUsersView() {
     <div className="min-h-screen bg-[#09090b] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-6 pb-16 sm:pb-6">
         {/* Banner Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-heading font-black text-2xl tracking-wide text-white uppercase flex items-center space-x-2">
+            <h1 className="font-heading font-black text-xl sm:text-2xl tracking-wide text-white uppercase flex items-center space-x-2">
               <ShieldCheck className="w-6 h-6 text-[#ff9f1c]" />
               <span>User Directory</span>
               <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-extrabold uppercase tracking-wider">
