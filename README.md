@@ -1,4 +1,4 @@
-# 🎯 Less Task — Full-Stack Trello-like Task Management System
+# 🎯 Less Task - Full-Stack Trello-like Task Management System
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel)](https://task-gimi.vercel.app/)
 [![API Status](https://img.shields.io/badge/Backend_API-Render-46E3B7?style=for-the-badge&logo=render)](https://taskgimi.onrender.com/api/health)
@@ -138,22 +138,22 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📡 REST API Reference
 
 ### Authentication Routes (`/api/auth`)
-- `POST /api/auth/register` — Register a new normal user account (Pending approval status)
-- `POST /api/auth/login` — Log in with email & password, returns JWT token + user profile
-- `GET /api/auth/me` — Fetch currently authenticated user profile
+- `POST /api/auth/register` - Register a new normal user account (Pending approval status)
+- `POST /api/auth/login` - Log in with email & password, returns JWT token + user profile
+- `GET /api/auth/me` - Fetch currently authenticated user profile
 
 ### Task Routes (`/api/tasks`)
-- `GET /api/tasks` — Fetch all tasks (Filtered by role/permissions)
-- `POST /api/tasks` — Create a new task
-- `PUT /api/tasks/:id` — Update task details
-- `PATCH /api/tasks/:id/status` — Update task status (`To Do` -> `Doing` -> `Done`)
-- `PATCH /api/tasks/:id/assign` — Assign or reassign task
-- `DELETE /api/tasks/:id` — Delete a task
+- `GET /api/tasks` - Fetch all tasks (Filtered by role/permissions)
+- `POST /api/tasks` - Create a new task
+- `PUT /api/tasks/:id` - Update task details
+- `PATCH /api/tasks/:id/status` - Update task status (`To Do` -> `Doing` -> `Done`)
+- `PATCH /api/tasks/:id/assign` - Assign or reassign task
+- `DELETE /api/tasks/:id` - Delete a task
 
 ### User Routes (`/api/users`)
-- `GET /api/users` — Get all users list
-- `PATCH /api/users/:id/approve` — Approve pending user account (Admin only)
-- `DELETE /api/users/:id` — Decline or remove user account (Admin only)
+- `GET /api/users` - Get all users list
+- `PATCH /api/users/:id/approve` - Approve pending user account (Admin only)
+- `DELETE /api/users/:id` - Decline or remove user account (Admin only)
 
 ---
 

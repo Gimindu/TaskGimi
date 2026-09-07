@@ -97,7 +97,7 @@ export function LandingPageView() {
 
           <p className="text-base text-gray-400 leading-relaxed max-w-md">
             Less Task is a three-column workspace built around one rule: a task
-            only moves forward. To Do, Doing, Done — nothing sits in five
+            only moves forward. To Do, Doing, Done - nothing sits in five
             different lists, and nothing gets lost in a backlog nobody opens.
           </p>
 
@@ -202,7 +202,7 @@ export function LandingPageView() {
               <span className="font-heading font-bold text-white">Done</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
-              It drops here and stays here — no reopening, no second column
+              It drops here and stays here - no reopening, no second column
               for "actually done" tasks.
             </p>
           </div>
@@ -220,7 +220,7 @@ export function LandingPageView() {
             <p className="text-sm text-gray-400 leading-relaxed max-w-md">
               New accounts sit in a pending state until an admin approves
               them. No open signup, no spam accounts sitting in your member
-              list — someone in the workspace always knows who's joining
+              list - someone in the workspace always knows who's joining
               before they can log in.
             </p>
           </div>
