@@ -56,15 +56,16 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // Fetch Users List
+  // Fetch Users List (Admin Only)
   const fetchUsers = useCallback(async () => {
+    if (!isAdmin) return;
     try {
       const res = await api.get('/users');
       setAllUsers(res.data);
     } catch (err) {
       console.error('Error loading users:', err);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -276,11 +277,12 @@ export default function DashboardPage() {
                 <option value="ALL">All Assignees</option>
                 <option value="ME">Assigned to Me</option>
                 <option value="UNASSIGNED">Unassigned Tasks</option>
-                {(allUsers || []).map((u) => (
-                  <option key={u.id || u._id} value={`USER_${u.id || u._id}`}>
-                    {u.name} ({u.role})
-                  </option>
-                ))}
+                {isAdmin &&
+                  (allUsers || []).map((u) => (
+                    <option key={u.id || u._id} value={`USER_${u.id || u._id}`}>
+                      {u.name} ({u.role})
+                    </option>
+                  ))}
               </select>
             </div>
 
