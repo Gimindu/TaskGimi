@@ -281,19 +281,19 @@ export function DashboardView() {
 
             {/* Sort / Filter by User Selector */}
             <div className="relative inline-flex items-center shrink-0">
-              <Users className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none" />
+              <Users className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none z-10" />
               <select
                 value={userFilter}
                 onChange={(e) => setUserFilter(e.target.value)}
-                className="pl-8 pr-4 py-1.5 bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/40 rounded-full text-xs font-bold text-gray-200 focus:outline-none focus:border-[#ff9f1c] cursor-pointer appearance-none"
+                className="pl-8 pr-3 py-1 bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/40 rounded-full text-xs font-bold text-gray-200 focus:outline-none focus:border-[#ff9f1c] cursor-pointer appearance-none max-w-[140px] truncate"
               >
                 <option value="ALL">All Assignees</option>
                 <option value="ME">Assigned to Me</option>
-                <option value="UNASSIGNED">Unassigned Tasks</option>
+                <option value="UNASSIGNED">Unassigned</option>
                 {isAdmin &&
                   (allUsers || []).map((u) => (
                     <option key={u.id || u._id} value={`USER_${u.id || u._id}`}>
-                      {u.name} ({u.role})
+                      {u.name}
                     </option>
                   ))}
               </select>
