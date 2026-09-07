@@ -294,9 +294,9 @@ export default function ProfilePage() {
           <div className="bg-[#141417] border border-[#242429] p-5 rounded-3xl flex items-center justify-between shadow-md">
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">In Progress</p>
-              <h3 className="font-heading font-black text-3xl text-emerald-400 mt-1">{assignedDoing}</h3>
+              <h3 className="font-heading font-black text-3xl text-blue-400 mt-1">{assignedDoing}</h3>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <Clock className="w-6 h-6" />
             </div>
           </div>
@@ -304,9 +304,9 @@ export default function ProfilePage() {
           <div className="bg-[#141417] border border-[#242429] p-5 rounded-3xl flex items-center justify-between shadow-md">
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Completed</p>
-              <h3 className="font-heading font-black text-3xl text-red-400 mt-1">{assignedDone}</h3>
+              <h3 className="font-heading font-black text-3xl text-emerald-400 mt-1">{assignedDone}</h3>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <CheckCircle className="w-6 h-6" />
             </div>
           </div>
@@ -393,8 +393,8 @@ export default function ProfilePage() {
                 onClick={() => setStatusFilter('Doing')}
                 className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
                   statusFilter === 'Doing'
-                    ? 'bg-emerald-500 text-black shadow-sm'
-                    : 'bg-[#09090b] text-emerald-400 border border-[#242429]'
+                    ? 'bg-blue-500 text-black shadow-sm'
+                    : 'bg-[#09090b] text-blue-400 border border-[#242429]'
                 }`}
               >
                 Doing
@@ -404,8 +404,8 @@ export default function ProfilePage() {
                 onClick={() => setStatusFilter('Done')}
                 className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
                   statusFilter === 'Done'
-                    ? 'bg-red-500 text-white shadow-sm'
-                    : 'bg-[#09090b] text-red-400 border border-[#242429]'
+                    ? 'bg-emerald-500 text-black shadow-sm'
+                    : 'bg-[#09090b] text-emerald-400 border border-[#242429]'
                 }`}
               >
                 Done
@@ -450,8 +450,8 @@ export default function ProfilePage() {
                             task.status === 'To Do'
                               ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                               : task.status === 'Doing'
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                           }`}
                         >
                           {task.status}

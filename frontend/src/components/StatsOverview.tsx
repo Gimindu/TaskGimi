@@ -44,10 +44,10 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ tasks, usersCount 
       {/* Doing */}
       <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Doing</p>
-          <p className="font-heading text-2xl font-black text-emerald-400 mt-0.5">{doingTasks}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-blue-400">Doing</p>
+          <p className="font-heading text-2xl font-black text-blue-400 mt-0.5">{doingTasks}</p>
         </div>
-        <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
           <Clock className="w-4.5 h-4.5" />
         </div>
       </div>
@@ -55,10 +55,10 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ tasks, usersCount 
       {/* Done */}
       <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-red-400">Done</p>
-          <p className="font-heading text-2xl font-black text-red-400 mt-0.5">{doneTasks}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Done</p>
+          <p className="font-heading text-2xl font-black text-emerald-400 mt-0.5">{doneTasks}</p>
         </div>
-        <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
           <CheckCircle2 className="w-4.5 h-4.5" />
         </div>
       </div>

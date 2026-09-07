@@ -36,13 +36,13 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
         };
       case 'Doing':
         return {
-          icon: <Clock className="w-4 h-4 text-emerald-400" />,
-          pill: 'border-emerald-500/50 text-emerald-400',
+          icon: <Clock className="w-4 h-4 text-blue-400" />,
+          pill: 'border-blue-500/50 text-blue-400',
         };
       case 'Done':
         return {
-          icon: <CheckCircle2 className="w-4 h-4 text-red-400" />,
-          pill: 'border-red-500/50 text-red-400',
+          icon: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
+          pill: 'border-emerald-500/50 text-emerald-400',
         };
     }
   };

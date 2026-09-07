@@ -5,13 +5,12 @@ import { requireRole } from '../middleware/rbac';
 
 const router = Router();
 
-// Require JWT and Admin role
+// Require JWT authentication
 router.use(authenticateJWT);
-router.use(requireRole('admin'));
 
 // @route   GET /api/users
-// @desc    Get all users (Admin only)
-// @access  Private (Admin)
+// @desc    Get all users list (For user assignment & sorting/filtering)
+// @access  Private (Authenticated users)
 router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const users = await User.find({}, 'name email role isApproved createdAt').sort({ createdAt: -1 });
@@ -20,6 +19,9 @@ router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> 
     res.status(500).json({ message: 'Error fetching users list', error: error.message });
   }
 });
+
+// Require Admin role for approval and deletion management
+router.use(requireRole('admin'));
 
 // @route   PATCH /api/users/:id/approve
 // @desc    Approve a pending user registration (Admin only)

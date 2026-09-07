@@ -12,7 +12,7 @@ import { KanbanBoard } from '../../components/KanbanBoard';
 import { TaskModal } from '../../components/TaskModal';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { LoadingScreen } from '../../components/LoadingScreen';
-import { Search, Filter, Loader2, RefreshCw, Flame } from 'lucide-react';
+import { Search, Filter, Loader2, RefreshCw, Flame, Users } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [userFilter, setUserFilter] = useState<string>('ALL');
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -55,16 +56,15 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // Fetch Users List (Admin Only)
+  // Fetch Users List
   const fetchUsers = useCallback(async () => {
-    if (!isAdmin) return;
     try {
       const res = await api.get('/users');
       setAllUsers(res.data);
     } catch (err) {
       console.error('Error loading users:', err);
     }
-  }, [isAdmin]);
+  }, []);
 
   useEffect(() => {
     if (!authLoading) {
@@ -156,7 +156,27 @@ export default function DashboardPage() {
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || task.status === statusFilter;
-    return matchesSearch && matchesStatus;
+
+    const assignedId =
+      typeof task.assignedUser === 'object' && task.assignedUser
+        ? task.assignedUser._id || task.assignedUser.id
+        : typeof task.assignedUser === 'string'
+        ? task.assignedUser
+        : null;
+
+    const currentUserId = user?.id || user?._id;
+
+    let matchesUser = true;
+    if (userFilter === 'UNASSIGNED') {
+      matchesUser = !assignedId;
+    } else if (userFilter === 'ME') {
+      matchesUser = assignedId === currentUserId;
+    } else if (userFilter.startsWith('USER_')) {
+      const targetId = userFilter.replace('USER_', '');
+      matchesUser = assignedId === targetId;
+    }
+
+    return matchesSearch && matchesStatus && matchesUser;
   });
 
   if (authLoading || loading) {
@@ -185,7 +205,7 @@ export default function DashboardPage() {
             </span>
           </div>
 
-          {/* Filter Pills Bar (Matching Reference UI: "All", "🔥 Hot", Status Pills) */}
+          {/* Filter Pills Bar (Matching Reference UI: "All", "🔥 Hot", Status Pills, User Sort) */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Search Input Pill */}
             <div className="relative">
@@ -227,8 +247,8 @@ export default function DashboardPage() {
               onClick={() => setStatusFilter('Doing')}
               className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
                 statusFilter === 'Doing'
-                  ? 'bg-emerald-500 text-black shadow-md'
-                  : 'bg-[#141417] text-emerald-400 border border-[#242429] hover:border-emerald-500/50'
+                  ? 'bg-blue-500 text-black shadow-md'
+                  : 'bg-[#141417] text-blue-400 border border-[#242429] hover:border-blue-500/50'
               }`}
             >
               Doing
@@ -238,12 +258,31 @@ export default function DashboardPage() {
               onClick={() => setStatusFilter('Done')}
               className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
                 statusFilter === 'Done'
-                  ? 'bg-red-500 text-white shadow-md'
-                  : 'bg-[#141417] text-red-400 border border-[#242429] hover:border-red-500/50'
+                  ? 'bg-emerald-500 text-black shadow-md'
+                  : 'bg-[#141417] text-emerald-400 border border-[#242429] hover:border-emerald-500/50'
               }`}
             >
               Done
             </button>
+
+            {/* Sort / Filter by User Selector */}
+            <div className="relative inline-flex items-center">
+              <Users className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none" />
+              <select
+                value={userFilter}
+                onChange={(e) => setUserFilter(e.target.value)}
+                className="pl-8 pr-4 py-1.5 bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/40 rounded-full text-xs font-bold text-gray-200 focus:outline-none focus:border-[#ff9f1c] cursor-pointer appearance-none"
+              >
+                <option value="ALL">All Assignees</option>
+                <option value="ME">Assigned to Me</option>
+                <option value="UNASSIGNED">Unassigned Tasks</option>
+                {(allUsers || []).map((u) => (
+                  <option key={u.id || u._id} value={`USER_${u.id || u._id}`}>
+                    {u.name} ({u.role})
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <button
               onClick={() => {
