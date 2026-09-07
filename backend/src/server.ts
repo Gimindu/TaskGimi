@@ -21,6 +21,16 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Root API Endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Less Task Backend API is running live',
+    health: '/api/health',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
