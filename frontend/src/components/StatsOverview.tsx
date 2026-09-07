@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Task, User } from '../types';
-import { CheckCircle2, Clock, ListTodo, AlertCircle, Users, LayoutGrid } from 'lucide-react';
+import { Task } from '../types';
+import { Flame, CheckCircle2, Clock, ListTodo, AlertCircle, Users, LayoutGrid } from 'lucide-react';
 
 interface StatsOverviewProps {
   tasks: Task[];
@@ -18,71 +18,71 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ tasks, usersCount 
   const unassignedTasks = tasks.filter((t) => !t.assignedUser).length;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
       {/* Total Tasks */}
-      <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-gray-800">
+      <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Total Tasks</p>
-          <p className="text-2xl font-extrabold text-white mt-1">{totalTasks}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Total Tasks</p>
+          <p className="font-heading text-2xl font-black text-white mt-0.5">{totalTasks}</p>
         </div>
-        <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400">
-          <LayoutGrid className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-full bg-[#1e1e24] border border-[#2e2e36] text-[#ff9f1c] flex items-center justify-center">
+          <LayoutGrid className="w-4.5 h-4.5" />
         </div>
       </div>
 
       {/* To Do */}
-      <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-gray-800">
+      <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-sky-400">To Do</p>
-          <p className="text-2xl font-extrabold text-sky-300 mt-1">{todoTasks}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#ff9f1c]">To Do</p>
+          <p className="font-heading text-2xl font-black text-[#ff9f1c] mt-0.5">{todoTasks}</p>
         </div>
-        <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-400">
-          <ListTodo className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 text-[#ff9f1c] flex items-center justify-center">
+          <ListTodo className="w-4.5 h-4.5" />
         </div>
       </div>
 
       {/* Doing */}
-      <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-gray-800">
+      <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Doing</p>
-          <p className="text-2xl font-extrabold text-amber-300 mt-1">{doingTasks}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Doing</p>
+          <p className="font-heading text-2xl font-black text-emerald-400 mt-0.5">{doingTasks}</p>
         </div>
-        <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-400">
-          <Clock className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+          <Clock className="w-4.5 h-4.5" />
         </div>
       </div>
 
       {/* Done */}
-      <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-gray-800">
+      <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Done</p>
-          <p className="text-2xl font-extrabold text-emerald-300 mt-1">{doneTasks}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-red-400">Done</p>
+          <p className="font-heading text-2xl font-black text-red-400 mt-0.5">{doneTasks}</p>
         </div>
-        <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
-          <CheckCircle2 className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center">
+          <CheckCircle2 className="w-4.5 h-4.5" />
         </div>
       </div>
 
       {/* Unassigned Tasks */}
-      <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-gray-800">
+      <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-purple-400">Unassigned</p>
-          <p className="text-2xl font-extrabold text-purple-300 mt-1">{unassignedTasks}</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-purple-400">Unassigned</p>
+          <p className="font-heading text-2xl font-black text-purple-300 mt-0.5">{unassignedTasks}</p>
         </div>
-        <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400">
-          <AlertCircle className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+          <AlertCircle className="w-4.5 h-4.5" />
         </div>
       </div>
 
-      {/* Total Users (Admin panel overview) */}
+      {/* System Users (Admin view) */}
       {isAdmin && (
-        <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-amber-500/20 bg-amber-500/5">
+        <div className="bg-[#141417] border border-amber-500/30 p-4 rounded-3xl flex items-center justify-between shadow-md bg-amber-500/5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Total Users</p>
-            <p className="text-2xl font-extrabold text-amber-200 mt-1">{usersCount}</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-amber-400">System Users</p>
+            <p className="font-heading text-2xl font-black text-amber-200 mt-0.5">{usersCount}</p>
           </div>
-          <div className="p-2.5 rounded-lg bg-amber-500/20 text-amber-400">
-            <Users className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
+            <Users className="w-4.5 h-4.5" />
           </div>
         </div>
       )}

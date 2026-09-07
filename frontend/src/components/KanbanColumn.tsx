@@ -31,24 +31,18 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
     switch (status) {
       case 'To Do':
         return {
-          icon: <ListTodo className="w-4.5 h-4.5 text-sky-400" />,
-          border: 'border-sky-500/30',
-          badge: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-          indicator: 'bg-sky-400',
+          icon: <ListTodo className="w-4 h-4 text-[#ff9f1c]" />,
+          pill: 'border-[#ff9f1c]/50 text-[#ff9f1c]',
         };
       case 'Doing':
         return {
-          icon: <Clock className="w-4.5 h-4.5 text-amber-400" />,
-          border: 'border-amber-500/30',
-          badge: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-          indicator: 'bg-amber-400',
+          icon: <Clock className="w-4 h-4 text-emerald-400" />,
+          pill: 'border-emerald-500/50 text-emerald-400',
         };
       case 'Done':
         return {
-          icon: <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400" />,
-          border: 'border-emerald-500/30',
-          badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-          indicator: 'bg-emerald-400',
+          icon: <CheckCircle2 className="w-4 h-4 text-red-400" />,
+          pill: 'border-red-500/50 text-red-400',
         };
     }
   };
@@ -56,17 +50,16 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   const style = getHeaderStyle();
 
   return (
-    <div className="flex flex-col h-full rounded-2xl glass-panel border border-gray-800 p-4 shadow-xl">
-      {/* Column Header */}
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-800">
+    <div className="flex flex-col h-full rounded-3xl bg-[#141417] border border-[#242429] p-4 shadow-md">
+      {/* Header (Matching Reference UI: "Today's Tasks 9" Header Style) */}
+      <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-[#242429]">
         <div className="flex items-center space-x-2.5">
-          <span className={`w-2.5 h-2.5 rounded-full ${style.indicator}`} />
           {style.icon}
-          <h2 className="font-bold text-gray-200 text-sm tracking-wide">{status}</h2>
+          <h2 className="font-heading font-extrabold text-lg text-white tracking-wide">{status}</h2>
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${style.pill}`}>
+            {tasks.length}
+          </span>
         </div>
-        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${style.badge}`}>
-          {tasks.length}
-        </span>
       </div>
 
       {/* Droppable Area */}
@@ -75,9 +68,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 min-h-[350px] transition-colors rounded-xl p-1.5 ${
+            className={`flex-1 min-h-[380px] transition-colors rounded-2xl p-1 ${
               snapshot.isDraggingOver
-                ? 'bg-gray-800/40 ring-1 ring-indigo-500/40 border-dashed border border-indigo-500/50'
+                ? 'bg-[#18181c] ring-2 ring-[#ff9f1c]/50 border-dashed border border-[#ff9f1c]'
                 : ''
             }`}
           >
@@ -97,12 +90,10 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
             {provided.placeholder}
 
             {tasks.length === 0 && !snapshot.isDraggingOver && (
-              <div className="h-48 flex flex-col items-center justify-center text-center p-4 border border-dashed border-gray-800 rounded-xl my-auto">
-                <Inbox className="w-8 h-8 text-gray-600 mb-2" />
-                <p className="text-xs font-medium text-gray-500">No tasks in {status}</p>
-                <p className="text-[10px] text-gray-600 mt-1">
-                  Drag a task here or create a new one
-                </p>
+              <div className="h-44 flex flex-col items-center justify-center text-center p-4 border border-dashed border-[#27272a] rounded-2xl my-auto">
+                <Inbox className="w-7 h-7 text-gray-600 mb-2" />
+                <p className="font-heading font-bold text-xs text-gray-500">No tasks in {status}</p>
+                <p className="text-[10px] text-gray-600 mt-1">Drag task here</p>
               </div>
             )}
           </div>

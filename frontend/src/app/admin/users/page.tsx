@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
 import { User, Task } from '../../../types';
 import { Navbar } from '../../../components/Navbar';
 import { AdminUserList } from '../../../components/AdminUserList';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { LoadingScreen } from '../../../components/LoadingScreen';
 import { ShieldCheck, Users, Clock, CheckCircle2, Search, Loader2, RefreshCw, LayoutGrid } from 'lucide-react';
-import Link from 'next/link';
 
 export default function AdminUserManagementPage() {
   const { user, loading: authLoading } = useAuth();
@@ -20,7 +21,6 @@ export default function AdminUserManagementPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Confirmation Modal state
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -79,7 +79,7 @@ export default function AdminUserManagementPage() {
     setConfirmConfig({
       isOpen: true,
       title: 'Decline / Remove User',
-      message: 'Are you sure you want to decline or remove this user account? This will permanently delete the account.',
+      message: 'Are you sure you want to decline or remove this user account? This action cannot be undone.',
       confirmText: 'Remove User',
       onConfirm: async () => {
         try {
@@ -102,41 +102,36 @@ export default function AdminUserManagementPage() {
   const approvedUsersCount = users.filter((u) => u.isApproved !== false).length;
 
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#090d16] text-gray-200">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-500 mb-3" />
-        <p className="text-sm font-medium text-gray-400">Loading User Directory...</p>
-      </div>
-    );
+    return <LoadingScreen message="Loading Directory..." submessage="Fetching user accounts & workspace permissions" />;
   }
 
   return (
-    <div className="min-h-screen bg-[#090d16] flex flex-col">
+    <div className="min-h-screen bg-[#09090b] flex flex-col font-sans">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6">
         {/* Banner Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-100 tracking-tight flex items-center space-x-2">
-              <ShieldCheck className="w-6 h-6 text-amber-400" />
-              <span>User Management Directory</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold uppercase tracking-wide">
+            <h1 className="font-heading font-black text-2xl tracking-wide text-white uppercase flex items-center space-x-2">
+              <ShieldCheck className="w-6 h-6 text-[#ff9f1c]" />
+              <span>User Directory</span>
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-extrabold uppercase tracking-wider">
                 Admin Exclusive
               </span>
             </h1>
-            <p className="text-xs text-gray-400 mt-1">
-              Approve pending signups, inspect user roles, and manage system accounts
+            <p className="text-xs text-gray-400 mt-1 font-medium">
+              Approve pending user signups and manage system accounts
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <Link
               href="/dashboard"
-              className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 hover:text-white text-xs font-medium transition-colors"
+              className="flex items-center space-x-1.5 px-4 py-2 rounded-full bg-[#141417] border border-[#242429] text-gray-300 hover:text-white text-xs font-bold transition-colors"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
-              <span>Back to Task Board</span>
+              <span>Task Board</span>
             </Link>
 
             <button
@@ -144,62 +139,62 @@ export default function AdminUserManagementPage() {
                 fetchUsers();
                 fetchTasks();
               }}
-              className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 hover:text-white text-xs font-medium transition-colors"
+              className="p-2 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors"
+              title="Refresh"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Refresh</span>
             </button>
           </div>
         </div>
 
-        {/* User Statistics Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-gray-800">
+        {/* User Stats Overview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+          <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-400">Total Users</p>
-              <p className="text-2xl font-extrabold text-white mt-1">{users.length}</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Total Users</p>
+              <p className="font-heading text-2xl font-black text-white mt-0.5">{users.length}</p>
             </div>
-            <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400">
-              <Users className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+              <Users className="w-4.5 h-4.5" />
             </div>
           </div>
 
-          <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-amber-500/30 bg-amber-500/5">
+          <div className="bg-[#141417] border border-amber-500/30 p-4 rounded-3xl flex items-center justify-between shadow-md bg-amber-500/5">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Pending Approvals</p>
-              <p className="text-2xl font-extrabold text-amber-300 mt-1">{pendingUsersCount}</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#ff9f1c]">Pending Approvals</p>
+              <p className="font-heading text-2xl font-black text-[#ff9f1c] mt-0.5">{pendingUsersCount}</p>
             </div>
-            <div className="p-2.5 rounded-lg bg-amber-500/20 text-amber-400">
-              <Clock className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 text-[#ff9f1c] flex items-center justify-center">
+              <Clock className="w-4.5 h-4.5" />
             </div>
           </div>
 
-          <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-emerald-500/30 bg-emerald-500/5">
+          <div className="bg-[#141417] border border-emerald-500/30 p-4 rounded-3xl flex items-center justify-between shadow-md bg-emerald-500/5">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Approved Accounts</p>
-              <p className="text-2xl font-extrabold text-emerald-300 mt-1">{approvedUsersCount}</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Approved Accounts</p>
+              <p className="font-heading text-2xl font-black text-emerald-300 mt-0.5">{approvedUsersCount}</p>
             </div>
-            <div className="p-2.5 rounded-lg bg-emerald-500/20 text-emerald-400">
-              <CheckCircle2 className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <CheckCircle2 className="w-4.5 h-4.5" />
             </div>
           </div>
         </div>
 
         {/* Search Bar */}
-        <div className="glass-panel p-4 rounded-xl border border-gray-800 mb-6 flex items-center justify-between">
+        <div className="bg-[#141417] border border-[#242429] p-3 rounded-2xl mb-6 flex items-center justify-between">
           <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-gray-500 absolute left-3 top-3" />
+            <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3.5 top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search user by name or email..."
-              className="w-full pl-9 pr-3 py-2 bg-gray-950/80 border border-gray-800 rounded-lg text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500"
+              placeholder="Search by name or email..."
+              className="w-full pl-9 pr-3.5 py-1.5 bg-[#09090b] border border-[#27272a] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c]"
             />
           </div>
         </div>
 
-        {/* Admin User Management Directory Table */}
+        {/* User Directory Table */}
         <AdminUserList
           users={filteredUsers}
           tasks={tasks}
@@ -208,7 +203,7 @@ export default function AdminUserManagementPage() {
         />
       </main>
 
-      {/* Confirmation Modal */}
+      {/* Confirm Modal */}
       <ConfirmModal
         isOpen={confirmConfig.isOpen}
         title={confirmConfig.title}

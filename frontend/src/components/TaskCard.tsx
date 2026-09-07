@@ -3,7 +3,7 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Task, User } from '../types';
-import { UserCheck, Edit3, Trash2, UserPlus, ShieldAlert, Calendar } from 'lucide-react';
+import { UserCheck, Edit3, Trash2, UserPlus, ArrowUpRight, Flame, Mail, Video, PhoneCall } from 'lucide-react';
 
 interface TaskCardProps {
   task: Task;
@@ -29,11 +29,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const isAdmin = currentUser?.role === 'admin';
   const currentUserId = currentUser?.id || currentUser?._id;
 
-  // Extract creator info safely
   const creatorObj = typeof task.creator === 'object' ? task.creator : null;
-  const creatorName = creatorObj ? creatorObj.name : 'Unknown User';
+  const creatorName = creatorObj ? creatorObj.name : 'User';
 
-  // Extract assigned user info safely
   const assignedObj = typeof task.assignedUser === 'object' ? task.assignedUser : null;
   const assignedUserId = assignedObj ? (assignedObj.id || assignedObj._id) : typeof task.assignedUser === 'string' ? task.assignedUser : null;
   const assignedName = assignedObj ? assignedObj.name : null;
@@ -46,6 +44,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const canDelete = isAdmin || isCreator;
   const canClaim = !isAdmin && isUnassigned;
 
+  // Highlight card style for Doing status or first card (matching reference UI)
+  const isHighlightCard = task.status === 'Doing';
+
   return (
     <Draggable draggableId={task._id} index={index}>
       {(provided, snapshot) => (
@@ -56,20 +57,38 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           style={{
             ...provided.draggableProps.style,
           }}
-          className={`glass-card p-4 rounded-xl mb-3 transition-all duration-200 border ${
+          className={`p-4 rounded-3xl mb-3 transition-all duration-200 group relative ${
             snapshot.isDragging
-              ? 'border-indigo-500 shadow-2xl ring-2 ring-indigo-500/30 scale-105 bg-gray-900/95 z-50'
-              : 'border-gray-800 hover:border-gray-700'
+              ? 'scale-105 shadow-2xl z-50 ring-2 ring-[#ff9f1c]'
+              : ''
+          } ${
+            isHighlightCard
+              ? 'bg-gradient-to-br from-[#ff9f1c] via-[#f97316] to-[#ea580c] text-black shadow-lg shadow-orange-500/20'
+              : 'bg-[#18181c] border border-[#27272a] hover:border-[#3f3f46] text-white'
           }`}
         >
-          {/* Card Header */}
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="font-semibold text-gray-100 text-sm leading-snug line-clamp-2">
-              {task.title}
-            </h3>
+          {/* Top Row: Avatar Left & Action Buttons Right (Matching Reference UI) */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2.5">
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-heading font-black text-xs uppercase shadow-md ${
+                isHighlightCard
+                  ? 'bg-black text-[#ff9f1c]'
+                  : 'bg-[#27272a] text-[#ff9f1c] border border-[#3f3f46]'
+              }`}>
+                {((creatorName || 'U').trim().charAt(0) || 'U').toUpperCase()}
+              </div>
+              <div>
+                <span className={`text-[11px] font-bold block leading-none ${isHighlightCard ? 'text-black/80' : 'text-gray-400'}`}>
+                  {creatorName}
+                </span>
+                <span className={`text-[9px] font-semibold uppercase tracking-wider ${isHighlightCard ? 'text-black/60' : 'text-gray-500'}`}>
+                  Creator
+                </span>
+              </div>
+            </div>
 
-            {/* Action Icons */}
-            <div className="flex items-center space-x-1 shrink-0">
+            {/* Right Controls: Arrow & Edit/Delete Icons */}
+            <div className="flex items-center space-x-1.5">
               {canEdit && (
                 <button
                   onClick={(e) => {
@@ -77,9 +96,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     onEdit(task);
                   }}
                   title="Edit Task"
-                  className="p-1 text-gray-400 hover:text-indigo-400 hover:bg-gray-800 rounded transition-colors"
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                    isHighlightCard
+                      ? 'bg-black/10 hover:bg-black/20 text-black'
+                      : 'bg-[#27272a] hover:bg-[#3f3f46] text-gray-300'
+                  }`}
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
+                  <Edit3 className="w-3 h-3" />
                 </button>
               )}
 
@@ -90,73 +113,111 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     onDelete(task._id);
                   }}
                   title="Delete Task"
-                  className="p-1 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                    isHighlightCard
+                      ? 'bg-black/10 hover:bg-black/20 text-red-950'
+                      : 'bg-[#27272a] hover:bg-red-500/20 text-red-400'
+                  }`}
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-3 h-3" />
                 </button>
               )}
+
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                isHighlightCard
+                  ? 'bg-black text-white'
+                  : 'bg-[#27272a] text-gray-300'
+              }`}>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </div>
             </div>
           </div>
 
-          {/* Description */}
+          {/* Task Title */}
+          <h3 className={`font-heading font-extrabold text-sm mb-1 leading-snug tracking-tight ${
+            isHighlightCard ? 'text-black' : 'text-white'
+          }`}>
+            {task.title}
+          </h3>
+
+          {/* Task Description */}
           {task.description && (
-            <p className="text-xs text-gray-400 mb-3 line-clamp-2 leading-relaxed">
+            <p className={`text-xs mb-3 line-clamp-2 leading-relaxed ${
+              isHighlightCard ? 'text-black/80 font-medium' : 'text-gray-400'
+            }`}>
               {task.description}
             </p>
           )}
 
-          {/* Meta & User Badges */}
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] pt-2 border-t border-gray-800/60 mt-3">
-            {/* Creator Badge */}
-            <span className="text-gray-400 flex items-center space-x-1">
-              <span className="text-gray-400">By:</span>
-              <span className="font-medium text-gray-300">{creatorName}</span>
-            </span>
+          {/* Bottom Row: Status Micro-Pills & Assignment */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-black/10 mt-3">
+            {/* Status Pill */}
+            <div className="flex items-center space-x-1.5">
+              <span className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                isHighlightCard
+                  ? 'bg-black/20 text-black border border-black/20'
+                  : task.status === 'To Do'
+                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                  : task.status === 'Doing'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                  : 'bg-red-500/10 text-red-400 border border-red-500/30'
+              }`}>
+                <Flame className="w-3 h-3" />
+                <span>{task.status}</span>
+              </span>
+            </div>
 
-            {/* Assigned User Badge / Claim / Reassign */}
+            {/* Assignment Action / Badge */}
             <div className="flex items-center">
               {isAdmin ? (
-                /* Admin Reassign Dropdown */
                 <select
                   value={assignedUserId || ''}
                   onChange={(e) => onReassign(task._id, e.target.value)}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-gray-900 border border-gray-700 text-gray-300 text-[11px] rounded px-2 py-0.5 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className={`text-[10px] font-bold rounded-full px-2 py-0.5 focus:outline-none cursor-pointer ${
+                    isHighlightCard
+                      ? 'bg-black text-white border-none'
+                      : 'bg-[#27272a] border border-[#3f3f46] text-gray-200'
+                  }`}
                 >
                   <option value="">-- Unassigned --</option>
-                  {allUsers.map((u) => (
+                  {(allUsers || []).map((u) => (
                     <option key={u.id || u._id} value={u.id || u._id}>
                       {u.name} ({u.role})
                     </option>
                   ))}
                 </select>
               ) : isUnassigned ? (
-                /* Normal User Claim Button */
                 canClaim ? (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onClaim(task._id);
                     }}
-                    className="inline-flex items-center space-x-1 px-2 py-0.5 rounded bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 transition-all text-[11px] font-semibold"
+                    className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold transition-all ${
+                      isHighlightCard
+                        ? 'bg-black text-white hover:bg-black/80'
+                        : 'bg-[#ff9f1c] text-black hover:bg-amber-400'
+                    }`}
                   >
                     <UserPlus className="w-3 h-3" />
                     <span>Claim Task</span>
                   </button>
                 ) : (
-                  <span className="px-2 py-0.5 rounded bg-gray-800 text-gray-400 text-[10px]">
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                    isHighlightCard ? 'bg-black/10 text-black' : 'bg-[#27272a] text-gray-400'
+                  }`}>
                     Unassigned
                   </span>
                 )
               ) : (
-                /* Assigned User Label */
-                <span
-                  className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-medium border ${
-                    isAssignedToMe
-                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                      : 'bg-gray-800 text-gray-300 border-gray-700'
-                  }`}
-                >
+                <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                  isHighlightCard
+                    ? 'bg-black/20 text-black'
+                    : isAssignedToMe
+                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                    : 'bg-[#27272a] text-gray-300'
+                }`}>
                   <UserCheck className="w-3 h-3" />
                   <span>{isAssignedToMe ? 'Assigned to You' : assignedName}</span>
                 </span>

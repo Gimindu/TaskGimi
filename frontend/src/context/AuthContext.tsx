@@ -25,6 +25,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
       const storedToken = localStorage.getItem('taskgimi_token');
       if (storedToken) {
         setToken(storedToken);

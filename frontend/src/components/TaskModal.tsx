@@ -80,33 +80,32 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="glass-panel w-full max-w-lg rounded-2xl border border-gray-800 shadow-2xl overflow-hidden">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-gray-900/60">
-          <h2 className="text-lg font-bold text-gray-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+      <div className="bg-[#141417] border border-[#242429] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden p-6 relative">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-4 border-b border-[#242429] mb-4">
+          <h2 className="font-heading font-extrabold text-lg text-white">
             {initialTask ? 'Edit Task' : 'Create New Task'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+            className="w-8 h-8 rounded-full bg-[#18181b] border border-[#27272a] hover:bg-[#27272a] text-gray-400 hover:text-white flex items-center justify-center transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="flex items-center space-x-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+            <div className="flex items-center space-x-2 p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* Title */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
               Task Title <span className="text-red-400">*</span>
             </label>
             <input
@@ -114,36 +113,33 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Implement JWT Authentication"
-              className="w-full px-4 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="w-full px-4 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c]"
               required
             />
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
               Description
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add details or context for this task..."
+              placeholder="Add details for this task..."
               rows={3}
-              className="w-full px-4 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"
+              className="w-full px-4 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c] resize-none"
             />
           </div>
 
-          {/* Status & Assignment Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Status */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
                 Status
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-gray-100 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
+                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
               >
                 <option value="To Do">To Do</option>
                 <option value="Doing">Doing</option>
@@ -151,16 +147,15 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               </select>
             </div>
 
-            {/* Assigned User */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
                 Assigned User
               </label>
               {isAdmin ? (
                 <select
                   value={assignedUser}
                   onChange={(e) => setAssignedUser(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-gray-100 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
                 >
                   <option value="">-- Unassigned --</option>
                   {allUsers.map((u) => (
@@ -173,7 +168,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 <select
                   value={assignedUser}
                   onChange={(e) => setAssignedUser(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-gray-100 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
                 >
                   <option value="">Unassigned</option>
                   <option value={currentUserId}>Assign to Myself ({currentUser?.name})</option>
@@ -182,19 +177,18 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           </div>
 
-          {/* Modal Footer Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-800 mt-6">
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-[#242429] mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-full text-gray-400 hover:text-white hover:bg-[#18181b] text-xs font-bold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center space-x-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold transition-all shadow-md shadow-indigo-600/20"
+              className="flex items-center space-x-1.5 px-5 py-2 rounded-full bg-[#ff9f1c] hover:bg-amber-400 disabled:opacity-50 text-black font-extrabold text-xs transition-all shadow-md active:scale-95"
             >
               <Check className="w-4 h-4" />
               <span>{loading ? 'Saving...' : initialTask ? 'Update Task' : 'Create Task'}</span>

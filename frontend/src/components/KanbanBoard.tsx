@@ -19,15 +19,18 @@ interface KanbanBoardProps {
 const COLUMNS: TaskStatus[] = ['To Do', 'Doing', 'Done'];
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
-  tasks,
+  tasks = [],
   currentUser,
-  allUsers,
+  allUsers = [],
   onStatusChange,
   onEdit,
   onDelete,
   onClaim,
   onReassign,
 }) => {
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const safeUsers = Array.isArray(allUsers) ? allUsers : [];
+
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
@@ -47,14 +50,14 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         {COLUMNS.map((status) => {
-          const columnTasks = tasks.filter((t) => t.status === status);
+          const columnTasks = safeTasks.filter((t) => t && t.status === status);
           return (
             <KanbanColumn
               key={status}
               status={status}
               tasks={columnTasks}
               currentUser={currentUser}
-              allUsers={allUsers}
+              allUsers={safeUsers}
               onEdit={onEdit}
               onDelete={onDelete}
               onClaim={onClaim}

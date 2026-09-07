@@ -118,6 +118,8 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         name: user.name,
         email: user.email,
         role: user.role,
+        isApproved: user.isApproved,
+        createdAt: user.createdAt,
       },
     });
   } catch (error: any) {
@@ -143,6 +145,8 @@ router.get('/me', authenticateJWT, async (req: AuthenticatedRequest, res: Respon
         name: user.name,
         email: user.email,
         role: user.role,
+        isApproved: user.isApproved,
+        createdAt: user.createdAt,
       },
     });
   } catch (error: any) {

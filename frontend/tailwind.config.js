@@ -8,24 +8,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#0b0f19',
-        surface: '#111827',
-        'surface-card': '#1f2937',
-        'surface-border': '#374151',
-        primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          500: '#0284c7',
-          600: '#0284c7',
-          700: '#0369a1',
-        },
-        indigo: {
-          500: '#6366f1',
-          600: '#4f46e5',
+        workspace: {
+          bg: '#09090b',
+          card: '#141417',
+          border: '#242429',
+          orange: '#ff9f1c',
+          amber: '#f97316',
+          green: '#22c55e',
+          red: '#ef4444',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Outfit', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+      },
+      borderRadius: {
+        '2xl': '18px',
+        '3xl': '24px',
       },
     },
   },

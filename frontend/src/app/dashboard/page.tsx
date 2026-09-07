@@ -10,9 +10,9 @@ import { Navbar } from '../../components/Navbar';
 import { StatsOverview } from '../../components/StatsOverview';
 import { KanbanBoard } from '../../components/KanbanBoard';
 import { TaskModal } from '../../components/TaskModal';
-import { AdminUserList } from '../../components/AdminUserList';
 import { ConfirmModal } from '../../components/ConfirmModal';
-import { Search, Filter, Loader2, RefreshCw, Plus, ShieldCheck } from 'lucide-react';
+import { LoadingScreen } from '../../components/LoadingScreen';
+import { Search, Filter, Loader2, RefreshCw, Flame } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -77,20 +77,17 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router, fetchTasks, fetchUsers]);
 
-  // Handle DND status change (Optimistic UI update + API Call)
+  // Handle DND status change
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
-    // Optimistic local state update
     setTasks((prevTasks) =>
       prevTasks.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
     );
 
     try {
       const res = await api.patch(`/tasks/${taskId}/status`, { status: newStatus });
-      // Update with populated task from server
       setTasks((prevTasks) => prevTasks.map((t) => (t._id === taskId ? res.data : t)));
     } catch (err) {
       console.error('Failed to persist task status change:', err);
-      // Re-fetch on error to revert state
       fetchTasks();
     }
   };
@@ -113,7 +110,7 @@ export default function DashboardPage() {
     if (isAdmin) fetchUsers();
   };
 
-  // Handle Claim Task (Normal user claims unassigned task)
+  // Handle Claim Task
   const handleClaimTask = async (taskId: string) => {
     try {
       const currentUserId = user?.id || user?._id;
@@ -124,7 +121,7 @@ export default function DashboardPage() {
     }
   };
 
-  // Handle Reassign Task (Admin reassigns to any user)
+  // Handle Reassign Task
   const handleReassignTask = async (taskId: string, targetUserId: string) => {
     try {
       const res = await api.patch(`/tasks/${taskId}/assign`, { targetUserId: targetUserId || null });
@@ -153,36 +150,7 @@ export default function DashboardPage() {
     });
   };
 
-  // Handle Approve User (Admin action)
-  const handleApproveUser = async (userId: string) => {
-    try {
-      await api.patch(`/users/${userId}/approve`);
-      fetchUsers();
-    } catch (err) {
-      console.error('Failed to approve user:', err);
-    }
-  };
-
-  // Handle Decline / Remove User (Admin action)
-  const handleDeclineUser = (userId: string) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: 'Decline / Remove User',
-      message: 'Are you sure you want to decline or remove this user account? This will remove the user from the system.',
-      confirmText: 'Remove User',
-      onConfirm: async () => {
-        try {
-          await api.delete(`/users/${userId}`);
-          fetchUsers();
-          fetchTasks();
-        } catch (err) {
-          console.error('Failed to decline user:', err);
-        }
-      },
-    });
-  };
-
-  // Filter tasks based on search query & status filter
+  // Filter tasks
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -192,17 +160,12 @@ export default function DashboardPage() {
   });
 
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#090d16] text-gray-200">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-3" />
-        <p className="text-sm font-medium text-gray-400">Loading workspace data...</p>
-      </div>
-    );
+    return <LoadingScreen message="Loading Task Board..." submessage="Fetching tasks and workspace data" />;
   }
 
   return (
-    <div className="min-h-screen bg-[#090d16] flex flex-col">
-      {/* Header Navbar */}
+    <div className="min-h-screen bg-[#09090b] flex flex-col font-sans">
+      {/* Workspace Header */}
       <Navbar
         onOpenCreateModal={() => {
           setEditingTask(null);
@@ -210,106 +173,95 @@ export default function DashboardPage() {
         }}
       />
 
-      {/* Main Workspace Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6">
-        {/* Dashboard Title & Overview Banner */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-100 tracking-tight flex items-center space-x-2">
-              <span>{isAdmin ? 'Administrator Workspace' : 'My Task Board'}</span>
-              {isAdmin && (
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold uppercase tracking-wide">
-                  Global Access
-                </span>
-              )}
+        {/* Workspace Title & Search/Filter Pills (Matching Reference UI) */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center space-x-3">
+            <h1 className="font-heading font-black text-2xl tracking-wide text-white uppercase">
+              {isAdmin ? 'All Tasks' : 'My Tasks'}
             </h1>
-            <p className="text-xs text-gray-400 mt-1">
-              {isAdmin
-                ? 'Overview of all tasks and user assignments across the system'
-                : 'Drag and drop cards to change task status in real time'}
-            </p>
+            <span className="px-3 py-1 rounded-full text-xs font-black bg-[#18181b] border border-[#ff9f1c]/40 text-[#ff9f1c]">
+              {filteredTasks.length}
+            </span>
           </div>
 
-          {/* Quick Refresh */}
-          <button
-            onClick={() => {
-              fetchTasks();
-              fetchUsers();
-            }}
-            className="self-start md:self-auto flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-300 hover:text-white text-xs font-medium transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Refresh Board</span>
-          </button>
+          {/* Filter Pills Bar (Matching Reference UI: "All", "🔥 Hot", Status Pills) */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Search Input Pill */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3.5 top-2.5" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                className="pl-9 pr-3.5 py-1.5 bg-[#141417] border border-[#242429] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c] w-40 sm:w-48"
+              />
+            </div>
+
+            {/* Filter Status Pills */}
+            <button
+              onClick={() => setStatusFilter('ALL')}
+              className={`px-4 py-1 rounded-full text-xs font-black transition-all ${
+                statusFilter === 'ALL'
+                  ? 'bg-white text-black shadow-md'
+                  : 'bg-[#141417] text-gray-400 border border-[#242429] hover:text-white'
+              }`}
+            >
+              All
+            </button>
+
+            <button
+              onClick={() => setStatusFilter('To Do')}
+              className={`inline-flex items-center space-x-1 px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+                statusFilter === 'To Do'
+                  ? 'bg-[#ff9f1c] text-black shadow-md'
+                  : 'bg-[#141417] text-amber-400 border border-[#242429] hover:border-amber-500/50'
+              }`}
+            >
+              <Flame className="w-3 h-3" />
+              <span>To Do</span>
+            </button>
+
+            <button
+              onClick={() => setStatusFilter('Doing')}
+              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+                statusFilter === 'Doing'
+                  ? 'bg-emerald-500 text-black shadow-md'
+                  : 'bg-[#141417] text-emerald-400 border border-[#242429] hover:border-emerald-500/50'
+              }`}
+            >
+              Doing
+            </button>
+
+            <button
+              onClick={() => setStatusFilter('Done')}
+              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all ${
+                statusFilter === 'Done'
+                  ? 'bg-red-500 text-white shadow-md'
+                  : 'bg-[#141417] text-red-400 border border-[#242429] hover:border-red-500/50'
+              }`}
+            >
+              Done
+            </button>
+
+            <button
+              onClick={() => {
+                fetchTasks();
+                fetchUsers();
+              }}
+              title="Refresh Board"
+              className="p-1.5 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Stats Overview */}
         <StatsOverview tasks={tasks} usersCount={allUsers.length} isAdmin={isAdmin} />
 
-        {/* Admin Quick Banner to Dedicated User Directory Page */}
-        {isAdmin && (
-          <div className="glass-panel p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-gray-100 flex items-center space-x-2">
-                  <span>User Directory & Approvals</span>
-                  {allUsers.filter((u) => u.isApproved === false).length > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-extrabold animate-pulse">
-                      {allUsers.filter((u) => u.isApproved === false).length} Pending Approval
-                    </span>
-                  )}
-                </h3>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Manage registered users, approve new accounts, and inspect assignments in the dedicated directory.
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/admin/users"
-              className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-xs transition-all shadow-md shrink-0"
-            >
-              <span>Manage Users Page</span>
-            </Link>
-          </div>
-        )}
-
-        {/* Filter and Search Bar */}
-        <div className="glass-panel p-4 rounded-xl border border-gray-800 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          {/* Search input */}
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-gray-500 absolute left-3 top-3" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tasks by title..."
-              className="w-full pl-9 pr-3 py-2 bg-gray-950/80 border border-gray-800 rounded-lg text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex items-center space-x-2 w-full sm:w-auto">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Filter:
-            </span>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-gray-950 border border-gray-800 text-gray-200 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="To Do">To Do</option>
-              <option value="Doing">Doing</option>
-              <option value="Done">Done</option>
-            </select>
-          </div>
-        </div>
-
-        {/* DND Kanban Board */}
+        {/* Kanban Board */}
         <KanbanBoard
           tasks={filteredTasks}
           currentUser={user}
@@ -325,7 +277,7 @@ export default function DashboardPage() {
         />
       </main>
 
-      {/* Task Create / Edit Modal */}
+      {/* Task Modal */}
       <TaskModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -338,7 +290,7 @@ export default function DashboardPage() {
         allUsers={allUsers}
       />
 
-      {/* Custom Confirmation Modal */}
+      {/* Confirm Modal */}
       <ConfirmModal
         isOpen={confirmConfig.isOpen}
         title={confirmConfig.title}
