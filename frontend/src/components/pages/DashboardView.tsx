@@ -393,6 +393,9 @@ export function DashboardView() {
         initialTask={editingTask}
         currentUser={user}
         allUsers={allUsers}
+        existingProjects={Array.from(
+          new Set(tasks.map((t) => t.project).filter((p): p is string => Boolean(p && p.trim())))
+        )}
       />
 
       {/* Confirm Modal */}

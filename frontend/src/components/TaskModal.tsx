@@ -6,7 +6,6 @@ import { X, Check, AlertCircle, Calendar, ShieldAlert } from 'lucide-react';
 import { CustomDropdown } from './CustomDropdown';
 
 const PRESET_TAGS = ['Frontend', 'Backend', 'Bug', 'Feature', 'Design', 'DevOps'];
-const PRESET_PROJECTS = ['TaskGimi Workspace', 'Mobile Client App', 'Backend API', 'Marketing & Design', 'General Project'];
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -24,6 +23,7 @@ interface TaskModalProps {
   initialTask?: Task | null;
   currentUser: User | null;
   allUsers: User[];
+  existingProjects?: string[];
 }
 
 export const TaskModal: React.FC<TaskModalProps> = ({
@@ -33,6 +33,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   initialTask,
   currentUser,
   allUsers,
+  existingProjects = [],
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -40,7 +41,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
-  const [project, setProject] = useState<string>('TaskGimi Workspace');
+  const [project, setProject] = useState<string>('');
   const [assignedUser, setAssignedUser] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +65,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setPriority(initialTask.priority || 'medium');
       setDueDate(formatToDatetimeLocal(initialTask.dueDate));
       setTags(initialTask.tags || []);
-      setProject(initialTask.project || 'TaskGimi Workspace');
+      setProject(initialTask.project || '');
       const assignedObj = typeof initialTask.assignedUser === 'object' ? initialTask.assignedUser : null;
       const assignedId = assignedObj ? (assignedObj.id || assignedObj._id) : typeof initialTask.assignedUser === 'string' ? initialTask.assignedUser : '';
       setAssignedUser(assignedId || '');
@@ -75,7 +76,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setPriority('medium');
       setDueDate('');
       setTags([]);
-      setProject('TaskGimi Workspace');
+      setProject(existingProjects && existingProjects.length > 0 ? existingProjects[0] : '');
       setAssignedUser('');
     }
     setError(null);
@@ -106,7 +107,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         priority,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         tags,
-        project: project.trim() || 'General Project',
+        project: project.trim() || 'General',
         assignedUser: assignedUser || null,
       });
       onClose();
@@ -251,17 +252,42 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
               Project / Workspace Tag
             </label>
-            <select
-              value={project}
-              onChange={(e) => setProject(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
-            >
-              {PRESET_PROJECTS.map((p) => (
-                <option key={p} value={p}>
-                  📁 {p}
-                </option>
-              ))}
-            </select>
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+                placeholder="Type project name (e.g. Website Redesign)..."
+                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c]"
+              />
+
+              {existingProjects && existingProjects.length > 0 && (
+                <div className="pt-1">
+                  <span className="text-[10px] text-gray-500 font-semibold mb-1 block">
+                    Existing Workspace Projects (click to select):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto scrollbar-thin">
+                    {existingProjects.map((p) => {
+                      const isSelected = project.trim().toLowerCase() === p.trim().toLowerCase();
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setProject(p)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border shrink-0 ${
+                            isSelected
+                              ? 'bg-[#ff9f1c]/20 border-[#ff9f1c] text-[#ff9f1c]'
+                              : 'bg-[#141417] border-[#242429] text-gray-400 hover:text-white hover:border-gray-500'
+                          }`}
+                        >
+                          📁 {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
