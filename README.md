@@ -43,10 +43,65 @@
   - Admins can reassign tasks between any user across the entire workspace via interactive task card controls.
 
 ### 📱 3. Fully Mobile Responsive UX & Feedback
-- **Interactive Toast Notification System**: Real-time popover toast alerts for task status changes, creation, claims, reassignments, deletions, and user account approvals.
 - **Mobile Bottom Navigation Bar**: 1-tap switching between Board, Users Directory, and Profile on smartphone viewports (`< 640px`).
 - **Mobile Column View Switcher**: Interactive column tabs (`[ All Columns ] [ To Do ] [ Doing ] [ Done ]`) for focused mobile viewing.
 - **Mobile User Cards**: Stacked user card views replacing heavy tables on mobile devices.
+
+---
+
+## 🌟 Optional Bonus Features & Enhancements
+
+Beyond the core required features, the application implements the following value-add bonus enhancements:
+
+1. 🏷️ **Task Priority Levels**:
+   - Color-coded priority badges on task cards (`Low`, `Medium`, 🔥 `High Priority`).
+   - Priority level selector in task modal with backend schema validation.
+
+2. 📅 **Task Due Dates & Time Selection**:
+   - Native `datetime-local` picker for selecting both calendar date and exact time.
+   - Dynamic deadline tracking badges on cards:
+     - ⚠️ **Overdue Alert**: Red pulsing badge displaying overdue date and time.
+     - ⏳ **Due Today**: Amber alert badge displaying exact due time.
+     - 📅 **Upcoming**: Indigo calendar pill displaying target date & time.
+
+3. 🏷️ **Custom Category Tags / Labels**:
+   - Interactive category tags (`#Frontend`, `#Backend`, `#Bug`, `#Feature`, `#Design`, `#DevOps`).
+   - Color-coded tag pills rendered on task cards and selectable in the modal.
+
+4. 🔃 **Board Sorting Controls**:
+   - Dynamic sorting dropdown to re-order Kanban columns instantly by:
+     - 🕒 **Newest** (Default creation order)
+     - 📅 **Due Date** (Earliest deadline first)
+     - 🔥 **Priority** (Highest priority first)
+
+5. 🎨 **Bespoke Glassmorphic Custom Dropdowns**:
+   - Replaced default browser `<select>` dropdowns with an animated custom popover component ([`CustomDropdown.tsx`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/components/CustomDropdown.tsx)).
+   - Features animated `ChevronDown` arrow rotation, active item checkmarks (`Check` icon), and click-outside dismissal.
+
+6. 🔔 **Real-Time Interactive Toast Notification System**:
+   - App-wide popover toasts ([`ToastContext.tsx`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/context/ToastContext.tsx)) with 4 distinct alert states (`Success`, `Error`, `Info`, `Warning`).
+   - Real-time feedback for task creation, DND status movement, claims, reassignments, deletions, and admin user account approvals.
+
+7. 📍 **Floating Action Button (FAB) for Task Creation**:
+   - Ergonomic bottom-right floating button (`fixed bottom-20 sm:bottom-8 right-6 z-40`) with hover rotation and glowing amber focus ring.
+
+8. 🔐 **Admin User Registration Approval Workflow**:
+   - Security authorization workflow where newly registered normal user accounts default to a pending approval state (`isApproved: false`).
+   - Dedicated **User Directory** ([`/admin/users`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/app/admin/users/page.tsx)) where administrators can review, approve (`PATCH /api/users/:id/approve`), or decline/remove (`DELETE /api/users/:id`) user accounts.
+   - Pending accounts are strictly blocked from logging in by backend authentication middleware until approved by an administrator.
+
+9. 📊 **Interactive Workspace Analytics & Stats Overview**:
+   - Visual metrics overview cards ([`StatsOverview.tsx`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/components/StatsOverview.tsx)) displaying live counts for Total Tasks, Active In-Progress Tasks, Completed Tasks, and Total Assignees.
+
+10. 🛡️ **Database Connection Resiliency & In-Memory Fallback**:
+    - Primary MongoDB Atlas Cloud connection configured with automatic zero-config fallback to `mongodb-memory-server` ([`db.ts`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/backend/src/config/db.ts)) if offline or cloud database connection is unavailable during evaluation testing.
+
+11. 📱 **Mobile-First Responsive Navigation & Column Switcher**:
+    - Dedicated mobile bottom navigation bar (`< 640px`) for 1-tap switching between Board, User Directory, and Profile views.
+    - Single-column switcher tabs (`[ All Columns ] [ To Do ] [ Doing ] [ Done ]`) for focused mobile viewing.
+
+12. 👤 **Interactive User Profile Page**:
+    - Dedicated Profile view ([`/profile`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/app/profile/page.tsx)) displaying user account statistics, role badges, registration date, and session controls.
 
 ---
 
