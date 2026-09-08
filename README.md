@@ -5,7 +5,7 @@
 [![Database](https://img.shields.io/badge/Database-MongoDB_Atlas-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
 [![License](https://img.shields.io/badge/License-MIT-amber.svg?style=for-the-badge)](LICENSE)
 
-> A modern, responsive full-stack Trello-like Kanban task management application built with **Next.js 14**, **Node.js/Express**, **TypeScript**, **MongoDB Atlas**, and **Tailwind CSS**. Built around strict Role-Based Access Control (RBAC), drag-and-drop task movement, approval workflows, and mobile responsiveness.
+> A modern, responsive full-stack Trello-like Kanban task management application built with **Next.js 14**, **Node.js/Express**, **TypeScript**, **MongoDB Atlas**, and **Tailwind CSS**. Built around strict Role-Based Access Control (RBAC), drag-and-drop task movement, optimistic UI updates, client-side caching with 8-second silent background polling, and mobile responsiveness.
 
 ---
 
@@ -19,33 +19,43 @@
 
 | Role | Email | Password | Access Privileges |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@taskgimi.com` | `Admin@123456` | Full system control, reassign any task, approve/decline user accounts, view user directory |
-| **Normal User** | `jane@example.com` | `Password123` | Create tasks, claim unassigned tasks to self, edit/delete own tasks |
+| **Administrator** | `admin@taskgimi.com` | `Admin@123456` | Full system control, edit/delete any task, reassign tasks, approve/decline user accounts, view user directory |
+| **Normal User** | `jane@example.com` | `Password123` | Create tasks, claim unassigned tasks to self, edit/delete own tasks, update assigned task status |
 
 ---
 
-## ✨ Core Features & Requirements Audit
+## ✨ Core Features & Architecture Highlights
 
-### 🔐 1. Role-Based Access Control (RBAC) & Authentication
+### 🔐 1. Role-Based Access Control (RBAC) & Permissions
 - **Admin Seeding Script**: Administrator accounts cannot be registered via public signup. Created via script `npm run seed:admin` (`src/scripts/seedAdmin.ts`).
-- **Normal User Registration & Approval Workflow**: New user registrations require admin approval before login access is granted.
+- **Normal User Registration & Approval Workflow**: New user registrations require admin approval before login access is granted (`isApproved: false` default).
+- **Admin Task Creation Protection**: When an Admin creates a task and assigns it to a member:
+  - Task details (Title, Description, Priority, Due Date, Project, Assignee, Tags) become **read-only** for assigned members.
+  - Assigned members can **only update the status** (`To Do` -> `In Progress` -> `Done`).
+  - Task deletion is restricted to Administrators or the Task Creator.
 - **Secure Authentication**: Passwords hashed using `bcryptjs` with JWT token validation enforced on all protected API endpoints.
 
 ### 📋 2. Task Management & Drag-and-Drop Board
-- **Three Status Columns**: `To Do` (Amber), `Doing` (Blue), and `Done` (Green).
+- **Three Status Columns**: `To Do` (Amber), `In Progress` (Sky Blue), and `Done` (Emerald).
 - **Drag-and-Drop**: Interactive card movement powered by `@hello-pangea/dnd`. Dragged status changes instantly persist to MongoDB.
 - **Task Priority Levels**: Color-coded priority badges (`Low`, `Medium`, 🔥 `High Priority`).
-- **Due Dates & Time Badges**: Smart deadline tracking badges with time support (⚠️ `Overdue`, ⏳ `Due Today`, 📅 `Due <Date> at <Time>`).
+- **High-Visibility Overdue Deadlines**:
+  - Overdue tasks are highlighted with glowing crimson borders (`border-l-4 border-l-rose-500 bg-rose-950/25 ring-1 ring-rose-500/40`).
+  - Pulsing warning badges (`⚠️ OVERDUE`) and alert icons for instant visual urgency.
 - **Category Tags / Labels**: Customizable category pills (`#Frontend`, `#Backend`, `#Bug`, `#Feature`, `#Design`, `#DevOps`).
+- **Dynamic Project Workspaces**: Type custom project names or click existing project chips populated dynamically from MongoDB task records.
 - **Board Sorting Controls**: Dynamic sorting by **Newest**, **Due Date (Earliest)**, or **Priority (Highest)**.
-- **Task Claiming & Assignment**:
-  - Normal users can create tasks and claim unassigned tasks exclusively for themselves.
-  - Admins can reassign tasks between any user across the entire workspace via interactive task card controls.
 
-### 📱 3. Fully Mobile Responsive UX & Feedback
+### ⚡ 3. Client-Side Data Caching & Real-Time Sync
+- **Client-Side Cache (`TaskContext.tsx`)**: Warm memory cache prevents redundant API calls on page transitions (e.g. switching between `/dashboard` and `/profile`).
+- **Optimistic UI Updates**: All actions (status changes, task creation, editing, claiming, reassigning, and deleting) update the UI state instantly before background server syncing.
+- **8-Second Silent Background Polling**: Periodically fetches live changes from MongoDB every 8 seconds without triggering page spinners or interrupting user workflow.
+- **Window Focus Re-Fetching**: Auto-syncs workspace data as soon as the user returns to or switches focus back to the TaskGimi tab.
+
+### 📱 4. Mobile Responsive UX & Navigation
 - **Mobile Bottom Navigation Bar**: 1-tap switching between Board, Users Directory, and Profile on smartphone viewports (`< 640px`).
-- **Mobile Column View Switcher**: Interactive column tabs (`[ All Columns ] [ To Do ] [ Doing ] [ Done ]`) for focused mobile viewing.
-- **Mobile User Cards**: Stacked user card views replacing heavy tables on mobile devices.
+- **Mobile Column View Switcher**: Interactive column tabs (`[ All Columns ] [ To Do ] [ In Progress ] [ Done ]`) for focused mobile viewing.
+- **Mobile User Directory Cards**: Stacked user card views replacing heavy data tables on mobile screens.
 
 ---
 
@@ -53,59 +63,26 @@
 
 Beyond the core required features, the application implements the following value-add bonus enhancements:
 
-1. 🏷️ **Task Priority Levels**:
-   - Color-coded priority badges on task cards (`Low`, `Medium`, 🔥 `High Priority`).
-   - Priority level selector in task modal with backend schema validation.
+1. ⚡ **Real-Time Client-Side Data Cache & Silent Background Sync**:
+   - `TaskContext.tsx` provides zero-delay page navigation, optimistic UI updates, 8-second silent background polling, and tab focus re-fetching.
 
-2. 📅 **Task Due Dates & Time Selection**:
-   - Native `datetime-local` picker for selecting both calendar date and exact time.
-   - Dynamic deadline tracking badges on cards:
-     - ⚠️ **Overdue Alert**: Red pulsing badge displaying overdue date and time.
-     - ⏳ **Due Today**: Amber alert badge displaying exact due time.
-     - 📅 **Upcoming**: Indigo calendar pill displaying target date & time.
+2. 🔒 **Admin-Created Task Detail Lock & RBAC Permissions**:
+   - Tasks created by Admins and assigned to members are locked for editing details, permitting status updates (`To Do` -> `In Progress` -> `Done`) only.
 
-3. 🏷️ **Custom Category Tags / Labels**:
-   - Interactive category tags (`#Frontend`, `#Backend`, `#Bug`, `#Feature`, `#Design`, `#DevOps`).
-   - Color-coded tag pills rendered on task cards and selectable in the modal.
+3. ⚠️ **High-Visibility Overdue Deadline Highlights**:
+   - Glowing crimson ambient card containers with pulsing `OVERDUE` alert badges and warning icons for instant deadline awareness.
 
-4. 🔃 **Board Sorting Controls**:
-   - Dynamic sorting dropdown to re-order Kanban columns instantly by:
-     - 🕒 **Newest** (Default creation order)
-     - 📅 **Due Date** (Earliest deadline first)
-     - 🔥 **Priority** (Highest priority first)
+4. 🔐 **Admin User Approval Workflow**:
+   - Newly registered user accounts default to `isApproved: false` until approved by an administrator in the User Directory ([`/admin/users`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/app/admin/users/page.tsx)).
 
-5. 🎨 **Bespoke Glassmorphic Custom Dropdowns**:
-   - Replaced default browser `<select>` dropdowns with an animated custom popover component ([`CustomDropdown.tsx`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/components/CustomDropdown.tsx)).
-   - Features animated `ChevronDown` arrow rotation, active item checkmarks (`Check` icon), and click-outside dismissal.
+5. 📁 **Custom Workspace Project Chips**:
+   - Editable custom project text field with dynamic chip selection collected automatically from existing MongoDB project names.
 
-6. 🔔 **Real-Time Interactive Toast Notification System**:
-   - App-wide popover toasts ([`ToastContext.tsx`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/context/ToastContext.tsx)) with 4 distinct alert states (`Success`, `Error`, `Info`, `Warning`).
-   - Real-time feedback for task creation, DND status movement, claims, reassignments, deletions, and admin user account approvals.
+6. 🔃 **Board Sorting Controls**:
+   - Dynamic sorting of Kanban board columns by **Newest**, **Due Date (Earliest)**, or **Priority (Highest)**.
 
-7. 📍 **Floating Action Button (FAB) for Task Creation**:
-   - Ergonomic bottom-right floating button (`fixed bottom-20 sm:bottom-8 right-6 z-40`) with hover rotation and glowing amber focus ring.
-
-8. 🔐 **Admin User Registration Approval Workflow**:
-   - Security authorization workflow where newly registered normal user accounts default to a pending approval state (`isApproved: false`).
-   - Dedicated **User Directory** ([`/admin/users`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/app/admin/users/page.tsx)) where administrators can review, approve (`PATCH /api/users/:id/approve`), or decline/remove (`DELETE /api/users/:id`) user accounts.
-   - Pending accounts are strictly blocked from logging in by backend authentication middleware until approved by an administrator.
-
-9. 📊 **Interactive Workspace Analytics & Stats Overview**:
-   - Visual metrics overview cards ([`StatsOverview.tsx`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/components/StatsOverview.tsx)) displaying live counts for Total Tasks, Active In-Progress Tasks, Completed Tasks, and Total Assignees.
-
-10. 🛡️ **Database Connection Resiliency & In-Memory Fallback**:
-    - Primary MongoDB Atlas Cloud connection configured with automatic zero-config fallback to `mongodb-memory-server` ([`db.ts`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/backend/src/config/db.ts)) if offline or cloud database connection is unavailable during evaluation testing.
-
-11. 📱 **Mobile-First Responsive Navigation & Column Switcher**:
-    - Dedicated mobile bottom navigation bar (`< 640px`) for 1-tap switching between Board, User Directory, and Profile views.
-    - Single-column switcher tabs (`[ All Columns ] [ To Do ] [ Doing ] [ Done ]`) for focused mobile viewing.
-
-12. 👤 **Interactive User Profile Page**:
-    - Dedicated Profile view ([`/profile`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/app/profile/page.tsx)) displaying user account statistics, role badges, registration date, and session controls.
-
-13. 📁 **Project / Workspace Selection Tag**:
-    - Assign tasks to specific project workspaces (`TaskGimi Workspace`, `Mobile Client App`, `Backend API`, `Marketing & Design`, `General`).
-    - Color-highlighted project folder badges (`📁 Project Name`) rendered on task cards.
+7. 🛡️ **In-Memory Database Fallback**:
+   - Primary MongoDB Atlas Cloud connection configured with automatic fallback to `mongodb-memory-server` ([`db.ts`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/backend/src/config/db.ts)) if cloud database is offline.
 
 ---
 
@@ -124,7 +101,7 @@ Beyond the core required features, the application implements the following valu
 TaskGimi/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # MongoDB Atlas Connection
+│   │   ├── config/          # MongoDB Atlas Connection & In-Memory Fallback
 │   │   ├── middleware/      # JWT Authentication & RBAC Authorization
 │   │   ├── models/          # Mongoose User & Task Schemas
 │   │   ├── routes/          # REST API Routes (Auth, Tasks, Users)
@@ -136,8 +113,8 @@ TaskGimi/
 │   ├── src/
 │   │   ├── app/             # Next.js App Router Entrypoints
 │   │   ├── components/      # Reusable UI & Page View Components
-│   │   │   └── pages/       # LandingPageView, DashboardView, ProfileView, etc.
-│   │   ├── context/         # AuthContext state provider
+│   │   │   └── pages/       # LandingPageView, DashboardView, ProfileView, AdminUsersView
+│   │   ├── context/         # AuthContext, ToastContext, TaskContext (Client Cache)
 │   │   ├── lib/             # Axios API Client configuration
 │   │   └── types/           # TypeScript Interfaces & Types
 │   ├── .env.example
@@ -159,7 +136,7 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in `backend/` based on `.env.example`:
+Create a `.env` file in `backend/`:
 ```env
 PORT=5000
 MONGODB_URI=mongodb://127.0.0.1:27017/taskgimi
@@ -202,17 +179,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📡 REST API Reference
 
 ### Authentication Routes (`/api/auth`)
-- `POST /api/auth/register` - Register a new normal user account (Pending approval status)
+- `POST /api/auth/register` - Register a new normal user account (Pending approval)
 - `POST /api/auth/login` - Log in with email & password, returns JWT token + user profile
 - `GET /api/auth/me` - Fetch currently authenticated user profile
 
 ### Task Routes (`/api/tasks`)
 - `GET /api/tasks` - Fetch all tasks (Filtered by role/permissions)
 - `POST /api/tasks` - Create a new task
-- `PUT /api/tasks/:id` - Update task details
+- `PUT /api/tasks/:id` - Update task details (Restricted to Admin or Task Creator)
 - `PATCH /api/tasks/:id/status` - Update task status (`To Do` -> `Doing` -> `Done`)
 - `PATCH /api/tasks/:id/assign` - Assign or reassign task
-- `DELETE /api/tasks/:id` - Delete a task
+- `DELETE /api/tasks/:id` - Delete a task (Restricted to Admin or Task Creator)
 
 ### User Routes (`/api/users`)
 - `GET /api/users` - Get all users list
