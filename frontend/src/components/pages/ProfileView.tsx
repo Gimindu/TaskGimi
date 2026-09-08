@@ -31,6 +31,7 @@ import {
   UserPlus,
   Tag as TagIcon,
   RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 
 const TAG_COLORS: Record<string, string> = {
@@ -373,7 +374,7 @@ export function ProfileView() {
 
           <div className="bg-[#141417] border border-[#242429] p-4 sm:p-5 rounded-3xl flex items-center justify-between shadow-md">
             <div>
-              <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Doing</p>
+              <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">In Progress</p>
               <h3 className="font-heading font-black text-2xl sm:text-3xl text-blue-400 mt-0.5">{assignedDoing}</h3>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
@@ -471,7 +472,7 @@ export function ProfileView() {
                     : 'bg-[#09090b] text-blue-400 border border-[#242429]'
                   }`}
               >
-                Doing
+                In Progress
               </button>
 
               <button
@@ -515,9 +516,16 @@ export function ProfileView() {
                 const isCreator = (creatorObj?.id || creatorObj?._id) === currentUserId;
                 const isUnassigned = !assignedUserId;
 
-                const canEdit = isAdmin || isCreator || isAssignedToMe || isUnassigned;
+                const canEdit = isAdmin || isCreator;
                 const canDelete = isAdmin || isCreator;
                 const canClaim = !isAdmin && isUnassigned;
+
+                const isOverdue = Boolean(
+                  task.dueDate &&
+                  task.status !== 'Done' &&
+                  !isNaN(new Date(task.dueDate).getTime()) &&
+                  new Date(task.dueDate).getTime() < Date.now()
+                );
 
                 // Priority Border Accent
                 const priorityBorder =
@@ -530,23 +538,34 @@ export function ProfileView() {
                 return (
                   <div
                     key={task._id}
-                    className={`bg-[#141417] hover:bg-[#18181b] border border-[#242429] hover:border-[#ff9f1c]/50 border-l-4 ${priorityBorder} p-5 rounded-2xl sm:rounded-3xl transition-all duration-200 shadow-md hover:shadow-xl hover:shadow-amber-500/5 flex flex-col justify-between space-y-4 group`}
+                    className={`p-5 rounded-2xl sm:rounded-3xl transition-all duration-200 shadow-md hover:shadow-xl flex flex-col justify-between space-y-4 group ${
+                      isOverdue
+                        ? 'bg-gradient-to-br from-rose-950/30 via-[#141417] to-[#141417] border-rose-500/70 border-l-4 border-l-rose-500 ring-1 ring-rose-500/40 shadow-rose-950/40 hover:border-rose-400'
+                        : `bg-[#141417] hover:bg-[#18181b] border border-[#242429] hover:border-[#ff9f1c]/50 border-l-4 ${priorityBorder} hover:shadow-amber-500/5`
+                    }`}
                   >
                     <div className="space-y-3">
-                      {/* Top Header Row: Creator Tag & Status Controls */}
+                      {/* Top Header Row: Creator Tag & Overdue Alert & Status Controls */}
                       <div className="flex items-center justify-between gap-2">
                         {/* Creator Info */}
-                        <div className="flex items-center space-x-1.5">
+                        <div className="flex items-center space-x-1.5 shrink-0">
                           <div className="w-5 h-5 rounded-md bg-[#242429] text-gray-300 text-[10px] font-extrabold flex items-center justify-center uppercase shrink-0">
                             {creatorName.charAt(0)}
                           </div>
-                          <span className="text-[11px] font-medium text-gray-400 truncate max-w-[120px]">
+                          <span className="text-[11px] font-medium text-gray-400 truncate max-w-[100px]">
                             By {creatorName}
                           </span>
                         </div>
 
-                        {/* Status micro pill + dropdown */}
-                        <div className="flex items-center space-x-1.5">
+                        {/* Overdue Warning Pill + Status dropdown */}
+                        <div className="flex items-center space-x-1.5 shrink-0">
+                          {isOverdue && (
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-500/25 text-rose-300 border border-rose-500/60 animate-pulse shadow-sm shadow-rose-500/30">
+                              <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                              <span>Overdue</span>
+                            </span>
+                          )}
+
                           <span
                             className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
                               task.status === 'To Do'
@@ -565,13 +584,13 @@ export function ProfileView() {
                                   : 'bg-emerald-400'
                               }`}
                             />
-                            <span>{task.status}</span>
+                            <span>{task.status === 'Doing' ? 'In Progress' : task.status}</span>
                           </span>
 
                           <CustomDropdown
                             options={[
                               { value: 'To Do', label: 'To Do' },
-                              { value: 'Doing', label: 'Doing' },
+                              { value: 'Doing', label: 'In Progress' },
                               { value: 'Done', label: 'Done' },
                             ]}
                             value={task.status}
@@ -641,7 +660,7 @@ export function ProfileView() {
                           if (isNaN(due.getTime())) return null;
                           const now = new Date();
                           const isDone = task.status === 'Done';
-                          const isOverdue = !isDone && due.getTime() < now.getTime();
+                          const isTaskOverdue = !isDone && due.getTime() < now.getTime();
                           const isToday = !isDone && due.toDateString() === now.toDateString();
 
                           const dateStr = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -649,15 +668,19 @@ export function ProfileView() {
                           return (
                             <span
                               className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
-                                isOverdue
-                                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                                isTaskOverdue
+                                  ? 'bg-rose-500/25 text-rose-300 border border-rose-500/60 animate-pulse shadow-sm shadow-rose-500/30'
                                   : isToday
                                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                                   : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                               }`}
                             >
-                              <Calendar className="w-2.5 h-2.5" />
-                              <span>{isOverdue ? `Overdue · ${dateStr}` : isToday ? `Due Today` : `Due ${dateStr}`}</span>
+                              {isTaskOverdue ? (
+                                <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
+                              ) : (
+                                <Calendar className="w-2.5 h-2.5" />
+                              )}
+                              <span>{isTaskOverdue ? `Overdue · ${dateStr}` : isToday ? `Due Today` : `Due ${dateStr}`}</span>
                             </span>
                           );
                         })()}

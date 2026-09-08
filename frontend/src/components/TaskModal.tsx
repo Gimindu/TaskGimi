@@ -49,6 +49,11 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const isAdmin = currentUser?.role === 'admin';
   const currentUserId = currentUser?.id || currentUser?._id || '';
 
+  const creatorObj = typeof initialTask?.creator === 'object' ? initialTask.creator : null;
+  const creatorId = creatorObj ? (creatorObj.id || creatorObj._id) : typeof initialTask?.creator === 'string' ? initialTask.creator : null;
+  const isCreator = Boolean(creatorId && currentUserId && String(creatorId) === String(currentUserId));
+  const isEditable = isAdmin || !initialTask || isCreator;
+
   const formatToDatetimeLocal = (dateString?: string | Date | null) => {
     if (!dateString) return '';
     const d = new Date(dateString);
@@ -85,6 +90,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   if (!isOpen) return null;
 
   const toggleTag = (tag: string) => {
+    if (!isEditable) return;
     setTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
@@ -124,7 +130,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-[#242429] mb-4 shrink-0">
           <h2 className="font-heading font-extrabold text-base sm:text-lg text-white">
-            {initialTask ? 'Edit Task' : 'Create New Task'}
+            {initialTask ? (isEditable ? 'Edit Task' : 'Task Details') : 'Create New Task'}
           </h2>
           <button
             onClick={onClose}
@@ -143,6 +149,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           )}
 
+          {!isEditable && (
+            <div className="flex items-center space-x-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+              <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>Task details created by Admin are read-only. You can update the status below.</span>
+            </div>
+          )}
+
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
               Task Title <span className="text-red-400">*</span>
@@ -150,9 +163,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             <input
               type="text"
               value={title}
+              disabled={!isEditable}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Implement JWT Authentication"
-              className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c]"
+              className={`w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c] ${
+                !isEditable ? 'opacity-60 cursor-not-allowed bg-[#0e0e10]' : ''
+              }`}
               required
             />
           </div>
@@ -163,10 +179,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             </label>
             <textarea
               value={description}
+              disabled={!isEditable}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add details for this task..."
               rows={3}
-              className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c] resize-none"
+              className={`w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c] resize-none ${
+                !isEditable ? 'opacity-60 cursor-not-allowed bg-[#0e0e10]' : ''
+              }`}
             />
           </div>
 
@@ -178,7 +197,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <CustomDropdown
                 options={[
                   { value: 'To Do', label: 'To Do' },
-                  { value: 'Doing', label: 'Doing' },
+                  { value: 'Doing', label: 'In Progress' },
                   { value: 'Done', label: 'Done' },
                 ]}
                 value={status}
@@ -202,6 +221,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 onChange={(val) => setPriority(val as TaskPriority)}
                 size="sm"
                 fullWidth
+                disabled={!isEditable}
               />
             </div>
           </div>
@@ -214,9 +234,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <input
                 type="datetime-local"
                 value={dueDate}
+                disabled={!isEditable}
                 onChange={(e) => setDueDate(e.target.value)}
-                onClick={(e) => (e.target as any).showPicker?.()}
-                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
+                onClick={(e) => isEditable && (e.target as any).showPicker?.()}
+                className={`w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] ${
+                  !isEditable ? 'opacity-60 cursor-not-allowed bg-[#0e0e10]' : 'cursor-pointer'
+                }`}
               />
             </div>
 
@@ -244,6 +267,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 size="sm"
                 fullWidth
                 placeholder="Select Assignee..."
+                disabled={!isEditable}
               />
             </div>
           </div>
@@ -256,9 +280,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <input
                 type="text"
                 value={project}
+                disabled={!isEditable}
                 onChange={(e) => setProject(e.target.value)}
                 placeholder="Type project name (e.g. Website Redesign)..."
-                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c]"
+                className={`w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#ff9f1c] ${
+                  !isEditable ? 'opacity-60 cursor-not-allowed bg-[#0e0e10]' : ''
+                }`}
               />
 
               {existingProjects && existingProjects.length > 0 && (
@@ -273,9 +300,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                         <button
                           key={p}
                           type="button"
-                          onClick={() => setProject(p)}
+                          disabled={!isEditable}
+                          onClick={() => isEditable && setProject(p)}
                           className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border shrink-0 ${
-                            isSelected
+                            !isEditable
+                              ? 'opacity-50 cursor-not-allowed bg-[#141417] border-[#242429] text-gray-500'
+                              : isSelected
                               ? 'bg-[#ff9f1c]/20 border-[#ff9f1c] text-[#ff9f1c]'
                               : 'bg-[#141417] border-[#242429] text-gray-400 hover:text-white hover:border-gray-500'
                           }`}
@@ -301,9 +331,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   <button
                     key={t}
                     type="button"
+                    disabled={!isEditable}
                     onClick={() => toggleTag(t)}
                     className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                      selected
+                      !isEditable
+                        ? 'opacity-50 cursor-not-allowed bg-[#09090b] border border-[#27272a] text-gray-500'
+                        : selected
                         ? 'bg-[#ff9f1c] text-black shadow-md'
                         : 'bg-[#09090b] border border-[#27272a] text-gray-400 hover:text-white'
                     }`}

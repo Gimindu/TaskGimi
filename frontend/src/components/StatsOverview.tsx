@@ -44,7 +44,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ tasks, usersCount 
       {/* Doing */}
       <div className="bg-[#141417] border border-[#242429] p-4 rounded-3xl flex items-center justify-between shadow-md">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-blue-400">Doing</p>
+          <p className="text-[10px] font-extrabold uppercase tracking-wider text-blue-400">In Progress</p>
           <p className="font-heading text-2xl font-black text-blue-400 mt-0.5">{doingTasks}</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">

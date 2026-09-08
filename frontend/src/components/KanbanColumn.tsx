@@ -55,7 +55,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
       <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-[#242429]">
         <div className="flex items-center space-x-2.5">
           {style.icon}
-          <h2 className="font-heading font-extrabold text-lg text-white tracking-wide">{status}</h2>
+          <h2 className="font-heading font-extrabold text-lg text-white tracking-wide">
+            {status === 'Doing' ? 'In Progress' : status}
+          </h2>
           <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${style.pill}`}>
             {tasks.length}
           </span>
@@ -92,7 +94,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
             {tasks.length === 0 && !snapshot.isDraggingOver && (
               <div className="h-44 flex flex-col items-center justify-center text-center p-4 border border-dashed border-[#27272a] rounded-2xl my-auto">
                 <Inbox className="w-7 h-7 text-gray-600 mb-2" />
-                <p className="font-heading font-bold text-xs text-gray-500">No tasks in {status}</p>
+                <p className="font-heading font-bold text-xs text-gray-500">
+                  No tasks in {status === 'Doing' ? 'In Progress' : status}
+                </p>
                 <p className="text-[10px] text-gray-600 mt-1">Drag task here</p>
               </div>
             )}

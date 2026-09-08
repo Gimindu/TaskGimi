@@ -109,13 +109,13 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<voi
       return;
     }
 
-    // Permission check
+    // Permission check: Only admin or task creator can update task details (title, description, priority, etc.)
     const isCreator = task.creator.toString() === userId;
-    const isAssigned = task.assignedUser?.toString() === userId;
-    const isUnassigned = !task.assignedUser;
 
-    if (role !== 'admin' && !isCreator && !isAssigned && !isUnassigned) {
-      res.status(403).json({ message: 'Permission denied to update this task.' });
+    if (role !== 'admin' && !isCreator) {
+      res.status(403).json({
+        message: 'Only administrators or the task creator can edit task details. Assigned members can only update task status.',
+      });
       return;
     }
 

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Task, User } from '../types';
-import { UserCheck, Edit3, Trash2, UserPlus, Calendar, Folder, MoreHorizontal } from 'lucide-react';
+import { UserCheck, Edit3, Trash2, UserPlus, Calendar, Folder, MoreHorizontal, AlertTriangle } from 'lucide-react';
 import { CustomDropdown } from './CustomDropdown';
 
 interface TaskCardProps {
@@ -25,7 +25,7 @@ const PRIORITY_META: Record<string, { label: string; dot: string; border: string
 
 const STATUS_META: Record<string, { label: string; dot: string; text: string }> = {
   'To Do': { label: 'To do', dot: 'bg-zinc-500', text: 'text-zinc-400' },
-  'Doing': { label: 'In progress', dot: 'bg-sky-400', text: 'text-sky-300' },
+  'Doing': { label: 'In Progress', dot: 'bg-sky-400', text: 'text-sky-300' },
   'Done': { label: 'Done', dot: 'bg-emerald-400', text: 'text-emerald-300' },
 };
 
@@ -62,7 +62,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const isCreator = (creatorObj?.id || creatorObj?._id) === currentUserId;
   const isUnassigned = !assignedUserId;
 
-  const canEdit = isAdmin || isCreator || isAssignedToMe || isUnassigned;
+  const canEdit = isAdmin || isCreator;
   const canDelete = isAdmin || isCreator;
   const canClaim = !isAdmin && isUnassigned;
 
@@ -86,6 +86,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     }
   }
 
+  const isOverdue = dueInfo?.tone === 'overdue';
+
   return (
     <Draggable draggableId={String(task._id || task.id || '')} index={index}>
       {(provided, snapshot) => (
@@ -94,17 +96,29 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={{ ...provided.draggableProps.style }}
-          className={`group relative mb-2.5 rounded-lg border border-zinc-800/80 border-l-2 bg-zinc-900/60 text-white transition-all duration-150 hover:border-zinc-700 hover:bg-zinc-900 ${priorityMeta ? priorityMeta.border : 'border-l-zinc-800'
-            } ${snapshot.isDragging ? 'rotate-[0.5deg] shadow-xl shadow-black/40 ring-1 ring-zinc-600' : ''}`}
+          className={`group relative mb-2.5 rounded-lg border text-white transition-all duration-200 ${
+            isOverdue
+              ? 'border-rose-500/70 border-l-4 border-l-rose-500 bg-gradient-to-r from-rose-950/25 via-zinc-900 to-zinc-900 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/40 hover:border-rose-400'
+              : `border-zinc-800/80 border-l-2 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-900 ${
+                  priorityMeta ? priorityMeta.border : 'border-l-zinc-800'
+                }`
+          } ${snapshot.isDragging ? 'rotate-[0.5deg] shadow-xl shadow-black/40 ring-1 ring-zinc-600' : ''}`}
         >
           <div className="px-3.5 pt-3.5 pb-3">
-            {/* Header: creator + actions */}
-            <div className="mb-2.5 flex items-center justify-between">
+            {/* Header: creator + overdue alert + actions */}
+            <div className="mb-2.5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-800 text-[10px] font-semibold text-zinc-300">
                   {((creatorName || 'U').trim().charAt(0) || 'U').toUpperCase()}
                 </div>
                 <span className="text-[11px] font-medium text-zinc-500">{creatorName}</span>
+
+                {isOverdue && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 px-2 py-0.5 text-[9px] font-black uppercase text-rose-300 border border-rose-500/60 animate-pulse tracking-wider shadow-sm shadow-rose-500/30">
+                    <AlertTriangle className="h-3 w-3 text-rose-400" />
+                    Overdue
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
@@ -174,14 +188,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
                 {dueInfo && (
                   <span
-                    className={`inline-flex items-center gap-1 text-[11px] font-medium ${dueInfo.tone === 'overdue'
-                        ? 'text-rose-400'
+                    className={`inline-flex items-center gap-1 text-[11px] font-medium ${
+                      dueInfo.tone === 'overdue'
+                        ? 'rounded-md bg-rose-500/20 px-2 py-0.5 text-rose-300 font-extrabold border border-rose-500/50 animate-pulse shadow-sm shadow-rose-500/20'
                         : dueInfo.tone === 'today'
-                          ? 'text-amber-300'
-                          : 'text-zinc-400'
-                      }`}
+                        ? 'text-amber-300 font-semibold'
+                        : 'text-zinc-400'
+                    }`}
                   >
-                    <Calendar className="h-3 w-3" />
+                    {dueInfo.tone === 'overdue' ? (
+                      <AlertTriangle className="h-3 w-3 text-rose-400" />
+                    ) : (
+                      <Calendar className="h-3 w-3" />
+                    )}
                     {dueInfo.label}
                   </span>
                 )}

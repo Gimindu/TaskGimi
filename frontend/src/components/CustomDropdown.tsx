@@ -19,6 +19,7 @@ interface CustomDropdownProps {
   align?: 'left' | 'right';
   size?: 'xs' | 'sm' | 'md';
   fullWidth?: boolean;
+  disabled?: boolean;
 }
 
 export const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -31,6 +32,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
   align = 'left',
   size = 'md',
   fullWidth = false,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,14 +69,17 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
     >
       <button
         type="button"
+        disabled={disabled}
         onClick={(e) => {
           e.stopPropagation();
-          setIsOpen(!isOpen);
+          if (!disabled) setIsOpen(!isOpen);
         }}
         className={`inline-flex items-center justify-between space-x-2 transition-all shadow-sm focus:outline-none shrink-0 ${
           fullWidth ? 'w-full' : ''
         } ${sizeButtonClasses[size]} ${
-          isOpen
+          disabled
+            ? 'opacity-60 cursor-not-allowed text-gray-500 border-gray-800 bg-[#0e0e10]'
+            : isOpen
             ? 'border-[#ff9f1c] text-white ring-1 ring-[#ff9f1c]/40 bg-[#1a1a1e]'
             : 'hover:border-[#ff9f1c]/50 text-gray-200 hover:text-white'
         }`}

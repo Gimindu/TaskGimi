@@ -85,7 +85,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             }`}
         >
           <Clock className="w-3.5 h-3.5" />
-          <span>Doing ({getCount('Doing')})</span>
+          <span>In Progress ({getCount('Doing')})</span>
         </button>
 
         <button

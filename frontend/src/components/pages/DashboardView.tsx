@@ -334,7 +334,7 @@ export function DashboardView() {
                   : 'bg-[#141417] text-blue-400 border border-[#242429] hover:border-blue-500/50'
               }`}
             >
-              Doing
+              In Progress
             </button>
 
             <button
