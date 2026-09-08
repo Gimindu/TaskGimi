@@ -469,7 +469,7 @@ export function ProfileView() {
                         {/* Overdue Warning Pill + Status dropdown */}
                         <div className="flex flex-wrap items-center justify-end gap-1.5 min-w-0">
                           {isOverdue && (
-                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-500/25 text-rose-300 border border-rose-500/60 animate-pulse shadow-sm shadow-rose-500/30 shrink-0">
+                            <span className="inline-flex items-center space-x-1 px-2.5 py-0 h-6 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-500/25 text-rose-300 border border-rose-500/60 animate-pulse shadow-sm shadow-rose-500/30 shrink-0">
                               <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
                               <span>Overdue</span>
                             </span>

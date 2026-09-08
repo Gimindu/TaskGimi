@@ -115,7 +115,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 <span className="text-[11px] font-medium text-zinc-500">{creatorName}</span>
 
                 {isOverdue && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 px-2 py-0.5 text-[9px] font-black uppercase text-rose-300 border border-rose-500/60 animate-pulse tracking-wider shadow-sm shadow-rose-500/30">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 px-2.5 py-0 h-6 text-[10px] font-extrabold uppercase text-rose-300 border border-rose-500/60 animate-pulse tracking-wider shadow-sm shadow-rose-500/30">
                     <AlertTriangle className="h-3 w-3 text-rose-400" />
                     Overdue
                   </span>

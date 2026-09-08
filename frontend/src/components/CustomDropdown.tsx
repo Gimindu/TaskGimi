@@ -50,7 +50,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
   }, []);
 
   const sizeButtonClasses = {
-    xs: 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#27272a] border border-[#3f3f46]',
+    xs: 'h-6 px-2.5 py-0 rounded-full text-[10px] font-extrabold bg-[#27272a] border border-[#3f3f46]',
     sm: 'px-3.5 py-2.5 rounded-xl text-xs font-bold bg-[#09090b] border border-[#27272a]',
     md: 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#141417] border border-[#242429]',
   };
@@ -63,7 +63,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
 
   return (
     <div
-      className={`relative inline-block text-left shrink-0 ${fullWidth ? 'w-full block' : ''} ${className}`}
+      className={`relative inline-flex items-center text-left shrink-0 ${fullWidth ? 'w-full flex' : ''} ${className}`}
       ref={dropdownRef}
       onClick={(e) => e.stopPropagation()}
     >
