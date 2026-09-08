@@ -45,7 +45,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> 
 // @access  Private
 router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { title, description, status, assignedUser } = req.body;
+    const { title, description, status, priority, dueDate, assignedUser } = req.body;
     const userId = req.user?.id;
     const role = req.user?.role;
 
@@ -66,11 +66,15 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
     }
 
     const validStatus: TaskStatus = ['To Do', 'Doing', 'Done'].includes(status) ? status : 'To Do';
+    const validPriority = ['low', 'medium', 'high'].includes(priority) ? priority : 'medium';
+    const validDueDate = dueDate ? new Date(dueDate) : null;
 
     const newTask = await Task.create({
       title,
       description: description || '',
       status: validStatus,
+      priority: validPriority,
+      dueDate: validDueDate,
       creator: userId,
       assignedUser: targetAssignedUser,
     });
@@ -86,12 +90,12 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
 });
 
 // @route   PUT /api/tasks/:id
-// @desc    Update task details (Title, Description, Status, Assignment)
+// @desc    Update task details (Title, Description, Status, Priority, DueDate, Assignment)
 // @access  Private
 router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { title, description, status, assignedUser } = req.body;
+    const { title, description, status, priority, dueDate, assignedUser } = req.body;
     const userId = req.user?.id;
     const role = req.user?.role;
 
@@ -115,6 +119,12 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<voi
     if (description !== undefined) task.description = description;
     if (status !== undefined && ['To Do', 'Doing', 'Done'].includes(status)) {
       task.status = status as TaskStatus;
+    }
+    if (priority !== undefined && ['low', 'medium', 'high'].includes(priority)) {
+      task.priority = priority as any;
+    }
+    if (dueDate !== undefined) {
+      task.dueDate = dueDate ? new Date(dueDate) : null;
     }
 
     // Handle assignment

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Task, TaskStatus, User } from '../types';
-import { X, Check, AlertCircle } from 'lucide-react';
+import { Task, TaskStatus, TaskPriority, User } from '../types';
+import { X, Check, AlertCircle, Calendar, ShieldAlert } from 'lucide-react';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -11,6 +11,8 @@ interface TaskModalProps {
     title: string;
     description: string;
     status: TaskStatus;
+    priority: TaskPriority;
+    dueDate?: string | null;
     assignedUser?: string | null;
   }) => Promise<void>;
   initialTask?: Task | null;
@@ -29,6 +31,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TaskStatus>('To Do');
+  const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [dueDate, setDueDate] = useState<string>('');
   const [assignedUser, setAssignedUser] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,11 +40,21 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const isAdmin = currentUser?.role === 'admin';
   const currentUserId = currentUser?.id || currentUser?._id || '';
 
+  const formatToDatetimeLocal = (dateString?: string | Date | null) => {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   useEffect(() => {
     if (initialTask) {
       setTitle(initialTask.title);
       setDescription(initialTask.description || '');
       setStatus(initialTask.status);
+      setPriority(initialTask.priority || 'medium');
+      setDueDate(formatToDatetimeLocal(initialTask.dueDate));
       const assignedObj = typeof initialTask.assignedUser === 'object' ? initialTask.assignedUser : null;
       const assignedId = assignedObj ? (assignedObj.id || assignedObj._id) : typeof initialTask.assignedUser === 'string' ? initialTask.assignedUser : '';
       setAssignedUser(assignedId || '');
@@ -48,6 +62,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setTitle('');
       setDescription('');
       setStatus('To Do');
+      setPriority('medium');
+      setDueDate('');
       setAssignedUser('');
     }
     setError(null);
@@ -69,6 +85,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         title: title.trim(),
         description: description.trim(),
         status,
+        priority,
+        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         assignedUser: assignedUser || null,
       });
       onClose();
@@ -145,6 +163,36 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 <option value="Doing">Doing</option>
                 <option value="Done">Done</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
+                Priority Level
+              </label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
+              >
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority 🔥</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
+                Due Date & Time
+              </label>
+              <input
+                type="datetime-local"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                onClick={(e) => (e.target as any).showPicker?.()}
+                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
+              />
             </div>
 
             <div>

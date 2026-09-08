@@ -1,12 +1,15 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export type TaskStatus = 'To Do' | 'Doing' | 'Done';
+export type TaskPriority = 'low' | 'medium' | 'high';
 
 export interface ITask extends Document {
   _id: Types.ObjectId;
   title: string;
   description: string;
   status: TaskStatus;
+  priority: TaskPriority;
+  dueDate?: Date | null;
   creator: Types.ObjectId | string;
   assignedUser?: Types.ObjectId | string | null;
   createdAt: Date;
@@ -29,6 +32,15 @@ const TaskSchema = new Schema<ITask>(
       type: String,
       enum: ['To Do', 'Doing', 'Done'],
       default: 'To Do',
+    },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
+    },
+    dueDate: {
+      type: Date,
+      default: null,
     },
     creator: {
       type: Schema.Types.ObjectId,

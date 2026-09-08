@@ -34,6 +34,8 @@
 ### 📋 2. Task Management & Drag-and-Drop Board
 - **Three Status Columns**: `To Do` (Amber), `Doing` (Blue), and `Done` (Green).
 - **Drag-and-Drop**: Interactive card movement powered by `@hello-pangea/dnd`. Dragged status changes instantly persist to MongoDB.
+- **Task Priority Levels**: Color-coded priority badges (`Low`, `Medium`, 🔥 `High Priority`).
+- **Due Dates & Deadline Badges**: Smart deadline tracking badges (⚠️ `Overdue`, ⏳ `Due Today`, 📅 `Due <Date>`).
 - **Task Claiming & Assignment**:
   - Normal users can create tasks and claim unassigned tasks exclusively for themselves.
   - Admins can reassign tasks between any user across the entire workspace via interactive task card controls.

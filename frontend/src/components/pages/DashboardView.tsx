@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
-import { Task, TaskStatus, User } from '../../types';
+import { Task, TaskStatus, TaskPriority, User } from '../../types';
 import { Navbar } from '../Navbar';
 import { StatsOverview } from '../StatsOverview';
 import { KanbanBoard } from '../KanbanBoard';
@@ -97,6 +97,8 @@ export function DashboardView() {
     title: string;
     description: string;
     status: TaskStatus;
+    priority: TaskPriority;
+    dueDate?: string | null;
     assignedUser?: string | null;
   }) => {
     if (editingTask) {

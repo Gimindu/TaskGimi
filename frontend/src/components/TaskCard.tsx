@@ -3,7 +3,7 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Task, User } from '../types';
-import { UserCheck, Edit3, Trash2, UserPlus, ArrowUpRight, Flame, Mail, Video, PhoneCall } from 'lucide-react';
+import { UserCheck, Edit3, Trash2, UserPlus, ArrowUpRight, Flame, Calendar } from 'lucide-react';
 
 interface TaskCardProps {
   task: Task;
@@ -121,6 +121,54 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               {task.description}
             </p>
           )}
+
+          {/* Priority & Due Date Badges */}
+          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {/* Priority Badge */}
+            {task.priority && (
+              <span
+                className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${
+                  task.priority === 'high'
+                    ? 'bg-red-500/20 text-red-300 border border-red-500/40'
+                    : task.priority === 'medium'
+                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                    : 'bg-slate-500/20 text-slate-300 border border-slate-500/30'
+                }`}
+              >
+                {task.priority === 'high' && <Flame className="w-2.5 h-2.5 text-red-400" />}
+                <span>{task.priority} priority</span>
+              </span>
+            )}
+
+            {/* Due Date & Time Badge */}
+            {task.dueDate && (() => {
+              const due = new Date(task.dueDate);
+              if (isNaN(due.getTime())) return null;
+              const now = new Date();
+              const isDone = task.status === 'Done';
+              const isOverdue = !isDone && due.getTime() < now.getTime();
+              const isToday = !isDone && due.toDateString() === now.toDateString();
+
+              const dateStr = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+              const timeStr = due.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+              const fullDisplay = `${dateStr} at ${timeStr}`;
+
+              return (
+                <span
+                  className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
+                    isOverdue
+                      ? 'bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse'
+                      : isToday
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
+                  }`}
+                >
+                  <Calendar className="w-2.5 h-2.5" />
+                  <span>{isOverdue ? `Overdue (${dateStr}, ${timeStr})` : isToday ? `Due Today at ${timeStr}` : `Due ${fullDisplay}`}</span>
+                </span>
+              );
+            })()}
+          </div>
 
           {/* Bottom Row: Status Micro-Pills & Assignment */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#242429] mt-3">
