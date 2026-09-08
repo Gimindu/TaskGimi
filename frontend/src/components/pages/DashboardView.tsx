@@ -12,8 +12,15 @@ import { KanbanBoard } from '../KanbanBoard';
 import { TaskModal } from '../TaskModal';
 import { ConfirmModal } from '../ConfirmModal';
 import { LoadingScreen } from '../LoadingScreen';
-import { Search, RefreshCw, Flame, Users, ArrowUpDown } from 'lucide-react';
+import { Search, RefreshCw, Users, ArrowUpDown } from 'lucide-react';
 import { CustomDropdown, DropdownOption } from '../CustomDropdown';
+
+const STATUS_TABS: { value: string; label: string; dot: string }[] = [
+  { value: 'ALL', label: 'All', dot: '' },
+  { value: 'To Do', label: 'To do', dot: 'bg-zinc-500' },
+  { value: 'Doing', label: 'In progress', dot: 'bg-sky-400' },
+  { value: 'Done', label: 'Done', dot: 'bg-emerald-400' },
+];
 
 export function DashboardView() {
   const { user, loading: authLoading } = useAuth();
@@ -44,7 +51,7 @@ export function DashboardView() {
     title: '',
     message: '',
     confirmText: 'Confirm',
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   const isAdmin = user?.role === 'admin';
@@ -81,19 +88,45 @@ export function DashboardView() {
     }
   }, [user, authLoading, router, fetchTasks, fetchUsers]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([fetchTasks(), fetchUsers()]);
+      showToast('Board Refreshed', 'info', 'Updated task board data.');
+    } catch (err: any) {
+      console.error('Refresh error:', err);
+      showToast('Refresh Failed', 'error', err.message || 'Could not refresh tasks.');
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600);
+    }
+  };
+
   // Handle DND status change
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    // If filtering by specific status, reset to 'ALL' so the moved task doesn't vanish from screen!
+    if (statusFilter !== 'ALL' && statusFilter !== newStatus) {
+      setStatusFilter('ALL');
+    }
+
+    const isMatch = (t: Task) =>
+      (t._id && String(t._id) === String(taskId)) ||
+      (t.id && String(t.id) === String(taskId));
+
     setTasks((prevTasks) =>
-      prevTasks.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
+      prevTasks.map((t) => (isMatch(t) ? { ...t, status: newStatus } : t))
     );
 
     try {
       const res = await api.patch(`/tasks/${taskId}/status`, { status: newStatus });
-      setTasks((prevTasks) => prevTasks.map((t) => (t._id === taskId ? res.data : t)));
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (isMatch(t) ? res.data : t))
+      );
       showToast('Task Status Updated', 'success', `Moved task to '${newStatus}'`);
     } catch (err: any) {
       console.error('Failed to persist task status change:', err);
-      showToast('Status Update Failed', 'error', err.message);
+      showToast('Status Update Failed', 'error', err.message || 'Could not update status');
       fetchTasks();
     }
   };
@@ -183,8 +216,8 @@ export function DashboardView() {
       typeof task.assignedUser === 'object' && task.assignedUser
         ? task.assignedUser._id || task.assignedUser.id
         : typeof task.assignedUser === 'string'
-        ? task.assignedUser
-        : null;
+          ? task.assignedUser
+          : null;
 
     const currentUserId = user?.id || user?._id;
 
@@ -247,14 +280,12 @@ export function DashboardView() {
 
             {/* Quick Refresh on Mobile */}
             <button
-              onClick={() => {
-                fetchTasks();
-                fetchUsers();
-              }}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
               title="Refresh Board"
-              className="lg:hidden p-1.5 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors"
+              className="lg:hidden p-1.5 rounded-full bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/50 text-gray-400 hover:text-white transition-all shrink-0 active:scale-95 disabled:opacity-60"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#ff9f1c] ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
@@ -292,7 +323,6 @@ export function DashboardView() {
                   : 'bg-[#141417] text-amber-400 border border-[#242429] hover:border-amber-500/50'
               }`}
             >
-              <Flame className="w-3 h-3" />
               <span>To Do</span>
             </button>
 
@@ -339,9 +369,9 @@ export function DashboardView() {
                 { value: 'UNASSIGNED', label: 'Unassigned' },
                 ...(isAdmin
                   ? (allUsers || []).map((u) => ({
-                      value: `USER_${u.id || u._id}`,
-                      label: u.name,
-                    }))
+                    value: `USER_${u.id || u._id}`,
+                    label: u.name,
+                  }))
                   : []),
               ]}
               value={userFilter}
@@ -351,14 +381,12 @@ export function DashboardView() {
             />
 
             <button
-              onClick={() => {
-                fetchTasks();
-                fetchUsers();
-              }}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
               title="Refresh Board"
-              className="hidden lg:block p-1.5 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors shrink-0"
+              className="hidden lg:flex p-1.5 rounded-full bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/50 text-gray-400 hover:text-white transition-all shrink-0 active:scale-95 disabled:opacity-60"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#ff9f1c] ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>

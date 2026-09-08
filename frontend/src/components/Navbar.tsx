@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Plus, ShieldCheck, User as UserIcon, LayoutGrid, Users, Target, UserCheck } from 'lucide-react';
+import { LogOut, Plus, ShieldCheck, User as UserIcon, LayoutGrid, Users, Target } from 'lucide-react';
 
 interface NavbarProps {
   onOpenCreateModal?: () => void;
@@ -32,7 +32,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 LESS TASK
               </span>
             </Link>
-
           </div>
 
           {/* User Info & Navigation */}

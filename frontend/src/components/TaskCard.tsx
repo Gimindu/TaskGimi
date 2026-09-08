@@ -3,7 +3,7 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Task, User } from '../types';
-import { UserCheck, Edit3, Trash2, UserPlus, ArrowUpRight, Flame, Calendar, Folder } from 'lucide-react';
+import { UserCheck, Edit3, Trash2, UserPlus, Calendar, Folder, MoreHorizontal } from 'lucide-react';
 import { CustomDropdown } from './CustomDropdown';
 
 interface TaskCardProps {
@@ -16,6 +16,27 @@ interface TaskCardProps {
   onClaim: (taskId: string) => void;
   onReassign: (taskId: string, targetUserId: string) => void;
 }
+
+const PRIORITY_META: Record<string, { label: string; dot: string; border: string; text: string }> = {
+  high: { label: 'High', dot: 'bg-rose-400', border: 'border-l-rose-500/70', text: 'text-rose-300' },
+  medium: { label: 'Medium', dot: 'bg-amber-400', border: 'border-l-amber-500/60', text: 'text-amber-300' },
+  low: { label: 'Low', dot: 'bg-zinc-500', border: 'border-l-zinc-700', text: 'text-zinc-400' },
+};
+
+const STATUS_META: Record<string, { label: string; dot: string; text: string }> = {
+  'To Do': { label: 'To do', dot: 'bg-zinc-500', text: 'text-zinc-400' },
+  'Doing': { label: 'In progress', dot: 'bg-sky-400', text: 'text-sky-300' },
+  'Done': { label: 'Done', dot: 'bg-emerald-400', text: 'text-emerald-300' },
+};
+
+const TAG_COLORS: Record<string, string> = {
+  bug: 'bg-rose-400',
+  feature: 'bg-violet-400',
+  frontend: 'bg-cyan-400',
+  backend: 'bg-amber-400',
+  design: 'bg-pink-400',
+  devops: 'bg-indigo-400',
+};
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
@@ -45,179 +66,145 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const canDelete = isAdmin || isCreator;
   const canClaim = !isAdmin && isUnassigned;
 
+  const priorityMeta = task.priority ? PRIORITY_META[task.priority] : null;
+  const statusMeta = STATUS_META[task.status] || STATUS_META['To Do'];
+
+  let dueInfo: { label: string; tone: 'overdue' | 'today' | 'default' } | null = null;
+  if (task.dueDate) {
+    const due = new Date(task.dueDate);
+    if (!isNaN(due.getTime())) {
+      const now = new Date();
+      const isDone = task.status === 'Done';
+      const isOverdue = !isDone && due.getTime() < now.getTime();
+      const isToday = !isDone && due.toDateString() === now.toDateString();
+      const dateStr = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const timeStr = due.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      dueInfo = {
+        label: isOverdue ? `Overdue · ${dateStr}` : isToday ? `Today · ${timeStr}` : `${dateStr} · ${timeStr}`,
+        tone: isOverdue ? 'overdue' : isToday ? 'today' : 'default',
+      };
+    }
+  }
+
   return (
-    <Draggable draggableId={task._id} index={index}>
+    <Draggable draggableId={String(task._id || task.id || '')} index={index}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          style={{
-            ...provided.draggableProps.style,
-          }}
-          className={`p-4 rounded-3xl mb-3 transition-all duration-200 group relative bg-[#18181c] border border-[#27272a] hover:border-[#3f3f46] text-white ${
-            snapshot.isDragging
-              ? 'scale-105 shadow-2xl z-50 ring-2 ring-[#ff9f1c]'
-              : ''
-          }`}
+          style={{ ...provided.draggableProps.style }}
+          className={`group relative mb-2.5 rounded-lg border border-zinc-800/80 border-l-2 bg-zinc-900/60 text-white transition-all duration-150 hover:border-zinc-700 hover:bg-zinc-900 ${priorityMeta ? priorityMeta.border : 'border-l-zinc-800'
+            } ${snapshot.isDragging ? 'rotate-[0.5deg] shadow-xl shadow-black/40 ring-1 ring-zinc-600' : ''}`}
         >
-          {/* Top Row: Avatar Left & Action Buttons Right (Matching Reference UI) */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center font-heading font-black text-xs uppercase shadow-md bg-[#27272a] text-[#ff9f1c] border border-[#3f3f46]">
-                {((creatorName || 'U').trim().charAt(0) || 'U').toUpperCase()}
+          <div className="px-3.5 pt-3.5 pb-3">
+            {/* Header: creator + actions */}
+            <div className="mb-2.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-800 text-[10px] font-semibold text-zinc-300">
+                  {((creatorName || 'U').trim().charAt(0) || 'U').toUpperCase()}
+                </div>
+                <span className="text-[11px] font-medium text-zinc-500">{creatorName}</span>
               </div>
-              <div>
-                <span className="text-[11px] font-bold block leading-none text-gray-400">
-                  {creatorName}
-                </span>
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-500">
-                  Creator
-                </span>
-              </div>
-            </div>
 
-            {/* Right Controls: Arrow & Edit/Delete Icons */}
-            <div className="flex items-center space-x-1.5">
-              {canEdit && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(task);
-                  }}
-                  title="Edit Task"
-                  className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-[#27272a] hover:bg-[#3f3f46] text-gray-300"
-                >
-                  <Edit3 className="w-3 h-3" />
-                </button>
-              )}
-
-              {canDelete && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(task._id);
-                  }}
-                  title="Delete Task"
-                  className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-[#27272a] hover:bg-red-500/20 text-red-400"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              )}
-
-              <div className="w-7 h-7 rounded-full flex items-center justify-center bg-[#27272a] text-gray-300">
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          </div>
-
-          {/* Task Title */}
-          <h3 className="font-heading font-extrabold text-sm mb-1 leading-snug tracking-tight text-white">
-            {task.title}
-          </h3>
-
-          {/* Task Description */}
-          {task.description && (
-            <p className="text-xs mb-3 line-clamp-2 leading-relaxed text-gray-400">
-              {task.description}
-            </p>
-          )}
-
-          {/* Project Tag & Priority & Due Date & Category Badges */}
-          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-            {/* Project Tag Badge */}
-            {task.project && (
-              <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#18181b] text-amber-400 border border-amber-500/30">
-                <Folder className="w-2.5 h-2.5 text-amber-500 shrink-0" />
-                <span className="truncate max-w-[120px]">{task.project}</span>
-              </span>
-            )}
-
-            {/* Category Tags */}
-            {Array.isArray(task.tags) &&
-              task.tags.map((tag) => {
-                const tagLower = tag.toLowerCase();
-                let colorClass = 'bg-slate-500/20 text-slate-300 border-slate-500/30';
-                if (tagLower === 'bug') colorClass = 'bg-red-500/20 text-red-300 border-red-500/40';
-                else if (tagLower === 'feature') colorClass = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
-                else if (tagLower === 'frontend') colorClass = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40';
-                else if (tagLower === 'backend') colorClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-                else if (tagLower === 'design') colorClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
-                else if (tagLower === 'devops') colorClass = 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40';
-
-                return (
-                  <span
-                    key={tag}
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase border ${colorClass}`}
+              <div className="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                {canEdit && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(task);
+                    }}
+                    title="Edit task"
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
                   >
-                    #{tag}
-                  </span>
-                );
-              })}
-
-            {/* Priority Badge */}
-            {task.priority && (
-              <span
-                className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${
-                  task.priority === 'high'
-                    ? 'bg-red-500/20 text-red-300 border border-red-500/40'
-                    : task.priority === 'medium'
-                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                    : 'bg-slate-500/20 text-slate-300 border border-slate-500/30'
-                }`}
-              >
-                {task.priority === 'high' && <Flame className="w-2.5 h-2.5 text-red-400" />}
-                <span>{task.priority} priority</span>
-              </span>
-            )}
-
-            {/* Due Date & Time Badge */}
-            {task.dueDate && (() => {
-              const due = new Date(task.dueDate);
-              if (isNaN(due.getTime())) return null;
-              const now = new Date();
-              const isDone = task.status === 'Done';
-              const isOverdue = !isDone && due.getTime() < now.getTime();
-              const isToday = !isDone && due.toDateString() === now.toDateString();
-
-              const dateStr = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-              const timeStr = due.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-              const fullDisplay = `${dateStr} at ${timeStr}`;
-
-              return (
-                <span
-                  className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
-                    isOverdue
-                      ? 'bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse'
-                      : isToday
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                      : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
-                  }`}
+                    <Edit3 className="h-3 w-3" />
+                  </button>
+                )}
+                {canDelete && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(task._id);
+                    }}
+                    title="Delete task"
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                )}
+                <button
+                  title="More"
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
                 >
-                  <Calendar className="w-2.5 h-2.5" />
-                  <span>{isOverdue ? `Overdue (${dateStr}, ${timeStr})` : isToday ? `Due Today at ${timeStr}` : `Due ${fullDisplay}`}</span>
-                </span>
-              );
-            })()}
-          </div>
-
-          {/* Bottom Row: Status Micro-Pills & Assignment */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#242429] mt-3">
-            {/* Status Pill */}
-            <div className="flex items-center space-x-1.5">
-              <span className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                task.status === 'To Do'
-                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                  : task.status === 'Doing'
-                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                  : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-              }`}>
-                <Flame className="w-3 h-3" />
-                <span>{task.status}</span>
-              </span>
+                  <MoreHorizontal className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
 
-            {/* Assignment Action / Badge */}
+            {/* Title & description */}
+            <h3 className="mb-1 text-[13.5px] font-semibold leading-snug text-zinc-100">
+              {task.title}
+            </h3>
+            {task.description && (
+              <p className="mb-2.5 line-clamp-2 text-[12px] leading-relaxed text-zinc-500">
+                {task.description}
+              </p>
+            )}
+
+            {/* Meta: project, tags, due date */}
+            {(task.project || (Array.isArray(task.tags) && task.tags.length > 0) || dueInfo) && (
+              <div className="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                {task.project && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-400">
+                    <Folder className="h-3 w-3 text-zinc-500" />
+                    <span className="max-w-[120px] truncate">{task.project}</span>
+                  </span>
+                )}
+
+                {Array.isArray(task.tags) &&
+                  task.tags.map((tag) => {
+                    const dot = TAG_COLORS[tag.toLowerCase()] || 'bg-zinc-500';
+                    return (
+                      <span key={tag} className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-400">
+                        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+                        {tag}
+                      </span>
+                    );
+                  })}
+
+                {dueInfo && (
+                  <span
+                    className={`inline-flex items-center gap-1 text-[11px] font-medium ${dueInfo.tone === 'overdue'
+                        ? 'text-rose-400'
+                        : dueInfo.tone === 'today'
+                          ? 'text-amber-300'
+                          : 'text-zinc-400'
+                      }`}
+                  >
+                    <Calendar className="h-3 w-3" />
+                    {dueInfo.label}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Footer: status, priority, assignment */}
+          <div className="flex items-center justify-between border-t border-zinc-800/70 px-3.5 py-2">
+            <div className="flex items-center gap-3">
+              <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${statusMeta.text}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dot}`} />
+                {statusMeta.label}
+              </span>
+
+              {priorityMeta && (
+                <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${priorityMeta.text}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${priorityMeta.dot}`} />
+                  {priorityMeta.label}
+                </span>
+              )}
+            </div>
+
             <div className="flex items-center">
               {isAdmin ? (
                 <CustomDropdown
@@ -241,24 +228,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                       e.stopPropagation();
                       onClaim(task._id);
                     }}
-                    className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold transition-all bg-[#ff9f1c] text-black hover:bg-amber-400"
+                    className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-900 transition-colors hover:bg-white"
                   >
-                    <UserPlus className="w-3 h-3" />
-                    <span>Claim Task</span>
+                    <UserPlus className="h-3 w-3" />
+                    Claim
                   </button>
                 ) : (
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#27272a] text-gray-400">
-                    Unassigned
-                  </span>
+                  <span className="text-[11px] font-medium text-zinc-600">Unassigned</span>
                 )
               ) : (
-                <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                  isAssignedToMe
-                    ? 'bg-blue-500/10 text-blue-300 border border-blue-500/30'
-                    : 'bg-[#27272a] text-gray-300'
-                }`}>
-                  <UserCheck className="w-3 h-3" />
-                  <span>{isAssignedToMe ? 'Assigned to You' : assignedName}</span>
+                <span
+                  className={`inline-flex items-center gap-1 text-[11px] font-medium ${isAssignedToMe ? 'text-sky-300' : 'text-zinc-400'
+                    }`}
+                >
+                  <UserCheck className="h-3 w-3" />
+                  {isAssignedToMe ? 'You' : assignedName}
                 </span>
               )}
             </div>

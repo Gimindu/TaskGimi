@@ -68,6 +68,21 @@ export function AdminUsersView() {
     }
   }, [user, authLoading, router, fetchUsers, fetchTasks]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([fetchUsers(), fetchTasks()]);
+      showToast('Directory Refreshed', 'info', 'Updated user directory data.');
+    } catch (err: any) {
+      console.error('Refresh error:', err);
+      showToast('Refresh Failed', 'error', err.message || 'Could not refresh users.');
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600);
+    }
+  };
+
   const handleApproveUser = async (userId: string) => {
     try {
       await api.patch(`/users/${userId}/approve`);
@@ -141,14 +156,12 @@ export function AdminUsersView() {
             </Link>
 
             <button
-              onClick={() => {
-                fetchUsers();
-                fetchTasks();
-              }}
-              className="p-2 rounded-full bg-[#141417] border border-[#242429] text-gray-400 hover:text-white transition-colors"
-              title="Refresh"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="p-2 rounded-full bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/50 text-gray-400 hover:text-white transition-all shrink-0 active:scale-95 disabled:opacity-60"
+              title="Refresh Directory"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#ff9f1c] ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>

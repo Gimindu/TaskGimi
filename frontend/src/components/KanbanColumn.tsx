@@ -51,7 +51,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
 
   return (
     <div className="flex flex-col h-full rounded-3xl bg-[#141417] border border-[#242429] p-4 shadow-md">
-      {/* Header (Matching Reference UI: "Today's Tasks 9" Header Style) */}
+      {/* Header */}
       <div className="flex items-center justify-between pb-3.5 mb-3 border-b border-[#242429]">
         <div className="flex items-center space-x-2.5">
           {style.icon}
