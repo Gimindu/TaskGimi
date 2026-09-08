@@ -120,8 +120,8 @@ export function LoginView() {
           </form>
 
           <div className="mt-6 pt-6 border-t border-[#242429]">
-            <p className="text-sm text-gray-400 mb-3">
-              Testing the app? Fill in a seeded account:
+            <p className="text-xs font-medium text-zinc-400 mb-3">
+              Testing the app? Select a demo role below to autofill credentials:
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
