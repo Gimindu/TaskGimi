@@ -11,7 +11,7 @@ import { KanbanBoard } from '../KanbanBoard';
 import { TaskModal } from '../TaskModal';
 import { ConfirmModal } from '../ConfirmModal';
 import { LoadingScreen } from '../LoadingScreen';
-import { Search, RefreshCw, Flame, Users } from 'lucide-react';
+import { Search, RefreshCw, Flame, Users, ArrowUpDown } from 'lucide-react';
 
 export function DashboardView() {
   const { user, loading: authLoading } = useAuth();
@@ -23,6 +23,7 @@ export function DashboardView() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [userFilter, setUserFilter] = useState<string>('ALL');
+  const [sortBy, setSortBy] = useState<string>('NEWEST');
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -181,6 +182,23 @@ export function DashboardView() {
     return matchesSearch && matchesStatus && matchesUser;
   });
 
+  // Sort filtered tasks
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (sortBy === 'DUE_DATE') {
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    }
+    if (sortBy === 'PRIORITY') {
+      const weightMap: Record<string, number> = { high: 3, medium: 2, low: 1 };
+      const weightA = weightMap[a.priority || 'medium'] || 2;
+      const weightB = weightMap[b.priority || 'medium'] || 2;
+      return weightB - weightA;
+    }
+    // Default NEWEST
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  });
+
   if (authLoading || loading) {
     return <LoadingScreen message="Loading Task Board..." submessage="Fetching tasks and workspace data" />;
   }
@@ -204,7 +222,7 @@ export function DashboardView() {
                 {isAdmin ? 'All Tasks' : 'My Tasks'}
               </h1>
               <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-black bg-[#18181b] border border-[#ff9f1c]/40 text-[#ff9f1c]">
-                {filteredTasks.length}
+                {sortedTasks.length}
               </span>
             </div>
 
@@ -221,7 +239,7 @@ export function DashboardView() {
             </button>
           </div>
 
-          {/* Filter Pills Bar (Horizontally Scrollable on Mobile) */}
+          {/* Filter & Sort Pills Bar (Horizontally Scrollable on Mobile) */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {/* Search Input Pill */}
             <div className="relative shrink-0">
@@ -281,7 +299,21 @@ export function DashboardView() {
               Done
             </button>
 
-            {/* Sort / Filter by User Selector */}
+            {/* Sort Dropdown */}
+            <div className="relative inline-flex items-center shrink-0">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none z-10" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="pl-8 pr-3 py-1 bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/40 rounded-full text-xs font-bold text-gray-200 focus:outline-none focus:border-[#ff9f1c] cursor-pointer appearance-none shrink-0"
+              >
+                <option value="NEWEST">Sort: Newest</option>
+                <option value="DUE_DATE">Sort: Due Date</option>
+                <option value="PRIORITY">Sort: Priority</option>
+              </select>
+            </div>
+
+            {/* Filter by User Selector */}
             <div className="relative inline-flex items-center shrink-0">
               <Users className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none z-10" />
               <select
@@ -319,7 +351,7 @@ export function DashboardView() {
 
         {/* Kanban Board */}
         <KanbanBoard
-          tasks={filteredTasks}
+          tasks={sortedTasks}
           currentUser={user}
           allUsers={allUsers}
           onStatusChange={handleStatusChange}

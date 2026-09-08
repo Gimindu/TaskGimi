@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority, User } from '../types';
 import { X, Check, AlertCircle, Calendar, ShieldAlert } from 'lucide-react';
 
+const PRESET_TAGS = ['Frontend', 'Backend', 'Bug', 'Feature', 'Design', 'DevOps'];
+
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,6 +15,7 @@ interface TaskModalProps {
     status: TaskStatus;
     priority: TaskPriority;
     dueDate?: string | null;
+    tags?: string[];
     assignedUser?: string | null;
   }) => Promise<void>;
   initialTask?: Task | null;
@@ -33,6 +36,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [status, setStatus] = useState<TaskStatus>('To Do');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState<string>('');
+  const [tags, setTags] = useState<string[]>([]);
   const [assignedUser, setAssignedUser] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +59,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setStatus(initialTask.status);
       setPriority(initialTask.priority || 'medium');
       setDueDate(formatToDatetimeLocal(initialTask.dueDate));
+      setTags(initialTask.tags || []);
       const assignedObj = typeof initialTask.assignedUser === 'object' ? initialTask.assignedUser : null;
       const assignedId = assignedObj ? (assignedObj.id || assignedObj._id) : typeof initialTask.assignedUser === 'string' ? initialTask.assignedUser : '';
       setAssignedUser(assignedId || '');
@@ -64,12 +69,19 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setStatus('To Do');
       setPriority('medium');
       setDueDate('');
+      setTags([]);
       setAssignedUser('');
     }
     setError(null);
   }, [initialTask, isOpen]);
 
   if (!isOpen) return null;
+
+  const toggleTag = (tag: string) => {
+    setTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +99,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         status,
         priority,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        tags,
         assignedUser: assignedUser || null,
       });
       onClose();
@@ -222,6 +235,31 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   <option value={currentUserId}>Assign to Myself ({currentUser?.name})</option>
                 </select>
               )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
+              Category Tags
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {PRESET_TAGS.map((t) => {
+                const selected = tags.includes(t);
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => toggleTag(t)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                      selected
+                        ? 'bg-[#ff9f1c] text-black shadow-md'
+                        : 'bg-[#09090b] border border-[#27272a] text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {selected ? `✓ ${t}` : `+ ${t}`}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

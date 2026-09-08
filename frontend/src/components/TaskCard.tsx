@@ -122,8 +122,30 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </p>
           )}
 
-          {/* Priority & Due Date Badges */}
+          {/* Priority & Due Date & Category Badges */}
           <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {/* Category Tags */}
+            {Array.isArray(task.tags) &&
+              task.tags.map((tag) => {
+                const tagLower = tag.toLowerCase();
+                let colorClass = 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+                if (tagLower === 'bug') colorClass = 'bg-red-500/20 text-red-300 border-red-500/40';
+                else if (tagLower === 'feature') colorClass = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+                else if (tagLower === 'frontend') colorClass = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40';
+                else if (tagLower === 'backend') colorClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+                else if (tagLower === 'design') colorClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+                else if (tagLower === 'devops') colorClass = 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40';
+
+                return (
+                  <span
+                    key={tag}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase border ${colorClass}`}
+                  >
+                    #{tag}
+                  </span>
+                );
+              })}
+
             {/* Priority Badge */}
             {task.priority && (
               <span

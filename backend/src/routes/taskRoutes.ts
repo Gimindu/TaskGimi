@@ -45,7 +45,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> 
 // @access  Private
 router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { title, description, status, priority, dueDate, assignedUser } = req.body;
+    const { title, description, status, priority, dueDate, tags, assignedUser } = req.body;
     const userId = req.user?.id;
     const role = req.user?.role;
 
@@ -68,6 +68,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
     const validStatus: TaskStatus = ['To Do', 'Doing', 'Done'].includes(status) ? status : 'To Do';
     const validPriority = ['low', 'medium', 'high'].includes(priority) ? priority : 'medium';
     const validDueDate = dueDate ? new Date(dueDate) : null;
+    const validTags = Array.isArray(tags) ? tags.map((t: any) => String(t).trim()).filter(Boolean) : [];
 
     const newTask = await Task.create({
       title,
@@ -75,6 +76,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
       status: validStatus,
       priority: validPriority,
       dueDate: validDueDate,
+      tags: validTags,
       creator: userId,
       assignedUser: targetAssignedUser,
     });
@@ -90,12 +92,12 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
 });
 
 // @route   PUT /api/tasks/:id
-// @desc    Update task details (Title, Description, Status, Priority, DueDate, Assignment)
+// @desc    Update task details (Title, Description, Status, Priority, DueDate, Tags, Assignment)
 // @access  Private
 router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { title, description, status, priority, dueDate, assignedUser } = req.body;
+    const { title, description, status, priority, dueDate, tags, assignedUser } = req.body;
     const userId = req.user?.id;
     const role = req.user?.role;
 
@@ -125,6 +127,9 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<voi
     }
     if (dueDate !== undefined) {
       task.dueDate = dueDate ? new Date(dueDate) : null;
+    }
+    if (tags !== undefined) {
+      task.tags = Array.isArray(tags) ? tags.map((t: any) => String(t).trim()).filter(Boolean) : [];
     }
 
     // Handle assignment

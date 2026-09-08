@@ -21,6 +21,7 @@ export interface Task {
   status: TaskStatus;
   priority?: TaskPriority;
   dueDate?: string | Date | null;
+  tags?: string[];
   creator: User | string;
   assignedUser?: User | string | null;
   createdAt: string;
