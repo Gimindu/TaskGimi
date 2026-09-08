@@ -106,6 +106,7 @@ export function DashboardView() {
     priority: TaskPriority;
     dueDate?: string | null;
     tags?: string[];
+    project?: string;
     assignedUser?: string | null;
   }) => {
     try {
@@ -233,7 +234,7 @@ export function DashboardView() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-6">
         {/* Workspace Title & Search/Filter Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 relative z-30">
           <div className="flex items-center justify-between sm:justify-start space-x-3">
             <div className="flex items-center space-x-3">
               <h1 className="font-heading font-black text-xl sm:text-2xl tracking-wide text-white uppercase">
@@ -257,8 +258,8 @@ export function DashboardView() {
             </button>
           </div>
 
-          {/* Filter & Sort Pills Bar (Horizontally Scrollable on Mobile) */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          {/* Filter & Sort Pills Bar */}
+          <div className="flex flex-wrap items-center gap-2">
             {/* Search Input Pill */}
             <div className="relative shrink-0">
               <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-2.5" />
@@ -327,6 +328,7 @@ export function DashboardView() {
               value={sortBy}
               onChange={setSortBy}
               icon={<ArrowUpDown className="w-3.5 h-3.5" />}
+              align="left"
             />
 
             {/* Filter by User Selector */}
@@ -345,6 +347,7 @@ export function DashboardView() {
               value={userFilter}
               onChange={setUserFilter}
               icon={<Users className="w-3.5 h-3.5" />}
+              align="right"
             />
 
             <button

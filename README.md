@@ -103,6 +103,10 @@ Beyond the core required features, the application implements the following valu
 12. 👤 **Interactive User Profile Page**:
     - Dedicated Profile view ([`/profile`](file:///c:/Users/GIMINDU/Videos/Projects/TaskGimi/frontend/src/app/profile/page.tsx)) displaying user account statistics, role badges, registration date, and session controls.
 
+13. 📁 **Project / Workspace Selection Tag**:
+    - Assign tasks to specific project workspaces (`TaskGimi Workspace`, `Mobile Client App`, `Backend API`, `Marketing & Design`, `General`).
+    - Color-highlighted project folder badges (`📁 Project Name`) rendered on task cards.
+
 ---
 
 ## 🛠️ Technology Stack

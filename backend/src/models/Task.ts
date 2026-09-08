@@ -11,6 +11,7 @@ export interface ITask extends Document {
   priority: TaskPriority;
   dueDate?: Date | null;
   tags?: string[];
+  project?: string;
   creator: Types.ObjectId | string;
   assignedUser?: Types.ObjectId | string | null;
   createdAt: Date;
@@ -46,6 +47,11 @@ const TaskSchema = new Schema<ITask>(
     tags: {
       type: [String],
       default: [],
+    },
+    project: {
+      type: String,
+      default: 'General',
+      trim: true,
     },
     creator: {
       type: Schema.Types.ObjectId,

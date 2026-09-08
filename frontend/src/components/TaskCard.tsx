@@ -3,7 +3,8 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Task, User } from '../types';
-import { UserCheck, Edit3, Trash2, UserPlus, ArrowUpRight, Flame, Calendar } from 'lucide-react';
+import { UserCheck, Edit3, Trash2, UserPlus, ArrowUpRight, Flame, Calendar, Folder } from 'lucide-react';
+import { CustomDropdown } from './CustomDropdown';
 
 interface TaskCardProps {
   task: Task;
@@ -122,8 +123,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </p>
           )}
 
-          {/* Priority & Due Date & Category Badges */}
+          {/* Project Tag & Priority & Due Date & Category Badges */}
           <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {/* Project Tag Badge */}
+            {task.project && (
+              <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#18181b] text-amber-400 border border-amber-500/30">
+                <Folder className="w-2.5 h-2.5 text-amber-500 shrink-0" />
+                <span className="truncate max-w-[120px]">{task.project}</span>
+              </span>
+            )}
+
             {/* Category Tags */}
             {Array.isArray(task.tags) &&
               task.tags.map((tag) => {
@@ -211,19 +220,20 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             {/* Assignment Action / Badge */}
             <div className="flex items-center">
               {isAdmin ? (
-                <select
+                <CustomDropdown
+                  options={[
+                    { value: '', label: '-- Unassigned --' },
+                    ...(allUsers || []).map((u) => ({
+                      value: u.id || u._id || '',
+                      label: `${u.name} (${u.role})`,
+                    })),
+                  ]}
                   value={assignedUserId || ''}
-                  onChange={(e) => onReassign(task._id, e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-[10px] font-bold rounded-full px-2 py-0.5 focus:outline-none cursor-pointer bg-[#27272a] border border-[#3f3f46] text-gray-200"
-                >
-                  <option value="">-- Unassigned --</option>
-                  {(allUsers || []).map((u) => (
-                    <option key={u.id || u._id} value={u.id || u._id}>
-                      {u.name} ({u.role})
-                    </option>
-                  ))}
-                </select>
+                  onChange={(targetUserId) => onReassign(task._id, targetUserId)}
+                  align="right"
+                  size="xs"
+                  placeholder="Assign..."
+                />
               ) : isUnassigned ? (
                 canClaim ? (
                   <button

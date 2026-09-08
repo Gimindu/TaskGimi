@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority, User } from '../types';
 import { X, Check, AlertCircle, Calendar, ShieldAlert } from 'lucide-react';
+import { CustomDropdown } from './CustomDropdown';
 
 const PRESET_TAGS = ['Frontend', 'Backend', 'Bug', 'Feature', 'Design', 'DevOps'];
+const PRESET_PROJECTS = ['TaskGimi Workspace', 'Mobile Client App', 'Backend API', 'Marketing & Design', 'General Project'];
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -16,6 +18,7 @@ interface TaskModalProps {
     priority: TaskPriority;
     dueDate?: string | null;
     tags?: string[];
+    project?: string;
     assignedUser?: string | null;
   }) => Promise<void>;
   initialTask?: Task | null;
@@ -37,6 +40,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
+  const [project, setProject] = useState<string>('TaskGimi Workspace');
   const [assignedUser, setAssignedUser] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +64,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setPriority(initialTask.priority || 'medium');
       setDueDate(formatToDatetimeLocal(initialTask.dueDate));
       setTags(initialTask.tags || []);
+      setProject(initialTask.project || 'TaskGimi Workspace');
       const assignedObj = typeof initialTask.assignedUser === 'object' ? initialTask.assignedUser : null;
       const assignedId = assignedObj ? (assignedObj.id || assignedObj._id) : typeof initialTask.assignedUser === 'string' ? initialTask.assignedUser : '';
       setAssignedUser(assignedId || '');
@@ -70,6 +75,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setPriority('medium');
       setDueDate('');
       setTags([]);
+      setProject('TaskGimi Workspace');
       setAssignedUser('');
     }
     setError(null);
@@ -100,6 +106,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         priority,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         tags,
+        project: project.trim() || 'General Project',
         assignedUser: assignedUser || null,
       });
       onClose();
@@ -167,30 +174,34 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
                 Status
               </label>
-              <select
+              <CustomDropdown
+                options={[
+                  { value: 'To Do', label: 'To Do' },
+                  { value: 'Doing', label: 'Doing' },
+                  { value: 'Done', label: 'Done' },
+                ]}
                 value={status}
-                onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
-              >
-                <option value="To Do">To Do</option>
-                <option value="Doing">Doing</option>
-                <option value="Done">Done</option>
-              </select>
+                onChange={(val) => setStatus(val as TaskStatus)}
+                size="sm"
+                fullWidth
+              />
             </div>
 
             <div>
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
                 Priority Level
               </label>
-              <select
+              <CustomDropdown
+                options={[
+                  { value: 'low', label: 'Low Priority' },
+                  { value: 'medium', label: 'Medium Priority' },
+                  { value: 'high', label: 'High Priority 🔥' },
+                ]}
                 value={priority}
-                onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
-              >
-                <option value="low">Low Priority</option>
-                <option value="medium">Medium Priority</option>
-                <option value="high">High Priority 🔥</option>
-              </select>
+                onChange={(val) => setPriority(val as TaskPriority)}
+                size="sm"
+                fullWidth
+              />
             </div>
           </div>
 
@@ -212,30 +223,45 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
                 Assigned User
               </label>
-              {isAdmin ? (
-                <select
-                  value={assignedUser}
-                  onChange={(e) => setAssignedUser(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
-                >
-                  <option value="">-- Unassigned --</option>
-                  {allUsers.map((u) => (
-                    <option key={u.id || u._id} value={u.id || u._id}>
-                      {u.name} ({u.role})
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <select
-                  value={assignedUser}
-                  onChange={(e) => setAssignedUser(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
-                >
-                  <option value="">Unassigned</option>
-                  <option value={currentUserId}>Assign to Myself ({currentUser?.name})</option>
-                </select>
-              )}
+              <CustomDropdown
+                options={
+                  isAdmin
+                    ? [
+                        { value: '', label: '-- Unassigned --' },
+                        ...allUsers.map((u) => ({
+                          value: u.id || u._id || '',
+                          label: `${u.name} (${u.role})`,
+                        })),
+                      ]
+                    : [
+                        { value: '', label: 'Unassigned' },
+                        { value: currentUserId || '', label: `Assign to Myself (${currentUser?.name})` },
+                      ]
+                }
+                value={assignedUser}
+                onChange={setAssignedUser}
+                size="sm"
+                fullWidth
+                placeholder="Select Assignee..."
+              />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-1.5">
+              Project / Workspace Tag
+            </label>
+            <select
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-[#09090b] border border-[#27272a] rounded-xl text-gray-200 text-xs focus:outline-none focus:border-[#ff9f1c] cursor-pointer"
+            >
+              {PRESET_PROJECTS.map((p) => (
+                <option key={p} value={p}>
+                  📁 {p}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
