@@ -447,7 +447,7 @@ export function ProfileView() {
                 return (
                   <div
                     key={task._id}
-                    className={`p-5 rounded-2xl sm:rounded-3xl transition-all duration-200 shadow-md hover:shadow-xl flex flex-col justify-between space-y-4 group ${
+                    className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl transition-all duration-200 shadow-md hover:shadow-xl flex flex-col justify-between space-y-4 group overflow-hidden ${
                       isOverdue
                         ? 'bg-gradient-to-br from-rose-950/30 via-[#141417] to-[#141417] border-rose-500/70 border-l-4 border-l-rose-500 ring-1 ring-rose-500/40 shadow-rose-950/40 hover:border-rose-400'
                         : `bg-[#141417] hover:bg-[#18181b] border border-[#242429] hover:border-[#ff9f1c]/50 border-l-4 ${priorityBorder} hover:shadow-amber-500/5`
@@ -455,46 +455,25 @@ export function ProfileView() {
                   >
                     <div className="space-y-3">
                       {/* Top Header Row: Creator Tag & Overdue Alert & Status Controls */}
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         {/* Creator Info */}
-                        <div className="flex items-center space-x-1.5 shrink-0">
+                        <div className="flex items-center space-x-1.5 min-w-0">
                           <div className="w-5 h-5 rounded-md bg-[#242429] text-gray-300 text-[10px] font-extrabold flex items-center justify-center uppercase shrink-0">
                             {creatorName.charAt(0)}
                           </div>
-                          <span className="text-[11px] font-medium text-gray-400 truncate max-w-[100px]">
+                          <span className="text-[11px] font-medium text-gray-400 truncate max-w-[120px]">
                             By {creatorName}
                           </span>
                         </div>
 
                         {/* Overdue Warning Pill + Status dropdown */}
-                        <div className="flex items-center space-x-1.5 shrink-0">
+                        <div className="flex flex-wrap items-center justify-end gap-1.5 min-w-0">
                           {isOverdue && (
-                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-500/25 text-rose-300 border border-rose-500/60 animate-pulse shadow-sm shadow-rose-500/30">
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-500/25 text-rose-300 border border-rose-500/60 animate-pulse shadow-sm shadow-rose-500/30 shrink-0">
                               <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
                               <span>Overdue</span>
                             </span>
                           )}
-
-                          <span
-                            className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                              task.status === 'To Do'
-                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                                : task.status === 'Doing'
-                                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                                : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                task.status === 'To Do'
-                                  ? 'bg-amber-400'
-                                  : task.status === 'Doing'
-                                  ? 'bg-blue-400'
-                                  : 'bg-emerald-400'
-                              }`}
-                            />
-                            <span>{task.status === 'Doing' ? 'In Progress' : task.status}</span>
-                          </span>
 
                           <CustomDropdown
                             options={[

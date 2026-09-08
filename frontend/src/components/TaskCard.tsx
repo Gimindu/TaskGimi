@@ -97,7 +97,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           {...provided.dragHandleProps}
           onClick={() => onEdit(task)}
           style={{ ...provided.draggableProps.style }}
-          className={`group relative mb-2.5 cursor-pointer rounded-lg border text-white transition-all duration-200 ${
+          className={`group relative mb-2.5 cursor-pointer rounded-lg border text-white transition-all duration-200 overflow-hidden ${
             isOverdue
               ? 'border-rose-500/70 border-l-4 border-l-rose-500 bg-gradient-to-r from-rose-950/25 via-zinc-900 to-zinc-900 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/40 hover:border-rose-400'
               : `border-zinc-800/80 border-l-2 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-900 ${
