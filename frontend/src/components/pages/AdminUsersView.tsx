@@ -130,7 +130,7 @@ export function AdminUsersView() {
     <div className="min-h-screen bg-[#09090b] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-6 pb-16 sm:pb-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-6 pb-24 sm:pb-6">
         {/* Banner Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>

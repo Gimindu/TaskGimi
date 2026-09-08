@@ -173,7 +173,7 @@ export function ProfileView() {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8 pb-16 sm:pb-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8 pb-24 sm:pb-8">
         {/* Profile Hero Header Card */}
         <div className="bg-[#141417] border border-[#242429] rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden">
           {/* Ambient Background Glow */}

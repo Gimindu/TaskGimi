@@ -160,7 +160,7 @@ export function DashboardView() {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-8 py-4 sm:py-6 pb-24 sm:pb-6">
         {/* Workspace Title & Search/Filter Bar */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 relative z-30">
           <div className="flex items-center justify-between sm:justify-start space-x-3">
@@ -184,8 +184,8 @@ export function DashboardView() {
             </button>
           </div>
 
-          {/* Filter & Sort Pills Bar */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Filter & Sort Pills Bar - Horizontally Scrollable on Mobile */}
+          <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1.5 scrollbar-none">
             {/* Search Input Pill */}
             <div className="relative shrink-0">
               <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-2.5" />
@@ -194,7 +194,7 @@ export function DashboardView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="pl-8 pr-3 py-1.5 bg-[#141417] border border-[#242429] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c] w-36 sm:w-48"
+                className="pl-8 pr-3 py-1.5 bg-[#141417] border border-[#242429] rounded-full text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff9f1c] w-32 sm:w-48"
               />
             </div>
 

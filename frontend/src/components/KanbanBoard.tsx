@@ -52,7 +52,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const getCount = (status: TaskStatus) => safeTasks.filter((t) => t && t.status === status).length;
 
   return (
-    <div className="space-y-4 pb-16 sm:pb-0">
+    <div className="space-y-4 pb-24 sm:pb-0">
       {/* Mobile Column View Switcher Tabs (Only visible on screens < 768px) */}
       <div className="md:hidden flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
         <button
