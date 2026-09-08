@@ -95,8 +95,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          onClick={() => onEdit(task)}
           style={{ ...provided.draggableProps.style }}
-          className={`group relative mb-2.5 rounded-lg border text-white transition-all duration-200 ${
+          className={`group relative mb-2.5 cursor-pointer rounded-lg border text-white transition-all duration-200 ${
             isOverdue
               ? 'border-rose-500/70 border-l-4 border-l-rose-500 bg-gradient-to-r from-rose-950/25 via-zinc-900 to-zinc-900 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/40 hover:border-rose-400'
               : `border-zinc-800/80 border-l-2 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-900 ${
@@ -156,13 +157,26 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </div>
 
             {/* Title & description */}
-            <h3 className="mb-1 text-[13.5px] font-semibold leading-snug text-zinc-100">
+            <h3 className="mb-1 text-[13.5px] font-semibold leading-snug text-zinc-100 break-words line-clamp-2">
               {task.title}
             </h3>
             {task.description && (
-              <p className="mb-2.5 line-clamp-2 text-[12px] leading-relaxed text-zinc-500">
-                {task.description}
-              </p>
+              <div className="relative group/desc">
+                <p className="mb-2.5 line-clamp-2 text-[12px] leading-relaxed text-zinc-400">
+                  {task.description}
+                </p>
+
+                {/* Custom Glassmorphism Hover Tooltip */}
+                {task.description.length > 70 && (
+                  <div className="pointer-events-none absolute bottom-full left-0 mb-1.5 hidden w-72 rounded-lg border border-zinc-700/80 bg-zinc-950/95 p-3 text-[11.5px] leading-relaxed text-zinc-200 shadow-2xl backdrop-blur-md transition-all duration-200 group-hover/desc:block z-50 ring-1 ring-amber-500/20">
+                    <div className="mb-1 flex items-center justify-between border-b border-zinc-800 pb-1 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                      <span>Full Description</span>
+                    </div>
+                    <p className="whitespace-pre-wrap text-zinc-300">{task.description}</p>
+                    <div className="absolute -bottom-1 left-5 h-2 w-2 rotate-45 border-b border-r border-zinc-700/80 bg-zinc-950/95" />
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Meta: project, tags, due date */}
@@ -224,7 +238,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               )}
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
               {isAdmin ? (
                 <CustomDropdown
                   options={[

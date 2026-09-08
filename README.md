@@ -24,6 +24,18 @@
 
 ---
 
+## 📸 Application Screenshots
+
+| Kanban Board & Overdue Highlights | Admin Task Locking & Permissions |
+| :---: | :---: |
+| ![Kanban Board Overview](./screenshots/dashboard.png) | ![Task Details Modal](./screenshots/task_modal.png) |
+
+| User Profile & Assigned Tasks | Admin User Directory & Approvals |
+| :---: | :---: |
+| ![User Profile View](./screenshots/profile.png) | ![Admin User Approvals](./screenshots/user_directory.png) |
+
+---
+
 ## ✨ Core Features & Architecture Highlights
 
 ### 🔐 1. Role-Based Access Control (RBAC) & Permissions
