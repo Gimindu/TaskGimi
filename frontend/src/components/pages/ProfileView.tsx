@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import api from '../../lib/api';
+import { useTaskContext } from '../../context/TaskContext';
 import { Task, TaskStatus, TaskPriority, User } from '../../types';
 import { Navbar } from '../Navbar';
 import { TaskModal } from '../TaskModal';
@@ -48,10 +48,19 @@ export function ProfileView() {
   const { showToast } = useToast();
   const router = useRouter();
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const {
+    tasks,
+    allUsers,
+    loading: tasksLoading,
+    isRefreshing,
+    refreshAll: handleRefresh,
+    handleStatusChange,
+    handleSaveTask: contextSaveTask,
+    handleDeleteTask: contextDeleteTask,
+    handleClaimTask,
+    handleReassignTask,
+  } = useTaskContext();
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [taskViewTab, setTaskViewTab] = useState<'assigned' | 'created' | 'all'>('assigned');
@@ -78,91 +87,11 @@ export function ProfileView() {
   const isAdmin = user?.role === 'admin';
   const currentUserId = user?.id || user?._id;
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      const res = await api.get('/tasks');
-      setTasks(res.data);
-    } catch (err) {
-      console.error('Error loading tasks for profile:', err);
-    }
-  }, []);
-
-  const fetchUsers = useCallback(async () => {
-    try {
-      const res = await api.get('/users');
-      setAllUsers(res.data);
-    } catch (err) {
-      console.error('Error loading users list:', err);
-    }
-  }, []);
-
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/login');
-      } else {
-        setLoading(true);
-        Promise.all([fetchTasks(), fetchUsers()]).finally(() => setLoading(false));
-      }
+    if (!authLoading && !user) {
+      router.push('/login');
     }
-  }, [user, authLoading, router, fetchTasks, fetchUsers]);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    try {
-      await Promise.all([fetchTasks(), fetchUsers()]);
-      showToast('Profile Refreshed', 'info', 'Updated task status and user records.');
-    } catch (err: any) {
-      showToast('Refresh Failed', 'error', err.message || 'Could not refresh profile data.');
-    } finally {
-      setTimeout(() => setIsRefreshing(false), 600);
-    }
-  };
-
-  // Handle status change
-  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
-    const isMatch = (t: Task) =>
-      (t._id && String(t._id) === String(taskId)) ||
-      (t.id && String(t.id) === String(taskId));
-
-    setTasks((prevTasks) =>
-      prevTasks.map((t) => (isMatch(t) ? { ...t, status: newStatus } : t))
-    );
-
-    try {
-      const res = await api.patch(`/tasks/${taskId}/status`, { status: newStatus });
-      setTasks((prevTasks) => prevTasks.map((t) => (isMatch(t) ? res.data : t)));
-      showToast('Task Status Updated', 'success', `Status changed to '${newStatus}'`);
-    } catch (err: any) {
-      console.error('Failed to update task status:', err);
-      showToast('Update Failed', 'error', err.message || 'Could not update status.');
-      fetchTasks();
-    }
-  };
-
-  // Handle Claim Task
-  const handleClaimTask = async (taskId: string) => {
-    try {
-      const res = await api.patch(`/tasks/${taskId}/assign`, { targetUserId: currentUserId });
-      setTasks((prev) => prev.map((t) => (t._id === taskId ? res.data : t)));
-      showToast('Task Claimed', 'success', 'You assigned this task to yourself.');
-    } catch (err: any) {
-      console.error('Failed to claim task:', err);
-      showToast('Claim Failed', 'error', err.message);
-    }
-  };
-
-  // Handle Reassign Task
-  const handleReassignTask = async (taskId: string, targetUserId: string) => {
-    try {
-      const res = await api.patch(`/tasks/${taskId}/assign`, { targetUserId: targetUserId || null });
-      setTasks((prev) => prev.map((t) => (t._id === taskId ? res.data : t)));
-      showToast('Task Reassigned', 'info', 'Updated task assignment.');
-    } catch (err: any) {
-      console.error('Failed to reassign task:', err);
-      showToast('Reassignment Failed', 'error', err.message);
-    }
-  };
+  }, [user, authLoading, router]);
 
   // Handle Create / Update Task Submit
   const handleSaveTask = async (data: {
@@ -175,23 +104,10 @@ export function ProfileView() {
     project?: string;
     assignedUser?: string | null;
   }) => {
-    try {
-      if (editingTask) {
-        const res = await api.put(`/tasks/${editingTask._id}`, data);
-        setTasks((prev) => prev.map((t) => (t._id === editingTask._id ? res.data : t)));
-        showToast('Task Updated', 'success', `Saved changes for "${data.title}"`);
-      } else {
-        const res = await api.post('/tasks', data);
-        setTasks((prev) => [res.data, ...prev]);
-        showToast('Task Created', 'success', `Added "${data.title}"`);
-      }
-      fetchTasks();
-    } catch (err: any) {
-      showToast('Save Failed', 'error', err.message);
-    }
+    await contextSaveTask(data, editingTask?._id);
   };
 
-  // Handle Delete Task
+  // Handle Delete Task Confirmation
   const handleDeleteTask = (taskId: string) => {
     setConfirmConfig({
       isOpen: true,
@@ -199,19 +115,12 @@ export function ProfileView() {
       message: 'Are you sure you want to delete this task? This action cannot be undone.',
       confirmText: 'Delete Task',
       onConfirm: async () => {
-        try {
-          await api.delete(`/tasks/${taskId}`);
-          setTasks((prev) => prev.filter((t) => t._id !== taskId));
-          showToast('Task Deleted', 'warning', 'Task removed permanently.');
-        } catch (err: any) {
-          console.error('Failed to delete task:', err);
-          showToast('Deletion Failed', 'error', err.message);
-        }
+        await contextDeleteTask(taskId);
       },
     });
   };
 
-  if (authLoading || loading) {
+  if (authLoading || tasksLoading) {
     return <LoadingScreen message="Loading Profile..." submessage="Fetching user profile & task metrics" />;
   }
 

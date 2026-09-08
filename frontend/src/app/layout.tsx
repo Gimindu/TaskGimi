@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
+import { TaskProvider } from '../context/TaskContext';
 
 export const metadata: Metadata = {
   title: 'Less Task | Workspace Task Management',
@@ -22,7 +23,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-[#09090b] text-gray-100 min-h-screen" suppressHydrationWarning>
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <TaskProvider>{children}</TaskProvider>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

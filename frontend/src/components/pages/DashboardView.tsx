@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import api from '../../lib/api';
+import { useTaskContext } from '../../context/TaskContext';
 import { Task, TaskStatus, TaskPriority, User } from '../../types';
 import { Navbar } from '../Navbar';
 import { StatsOverview } from '../StatsOverview';
@@ -15,21 +15,24 @@ import { LoadingScreen } from '../LoadingScreen';
 import { Search, RefreshCw, Users, ArrowUpDown } from 'lucide-react';
 import { CustomDropdown, DropdownOption } from '../CustomDropdown';
 
-const STATUS_TABS: { value: string; label: string; dot: string }[] = [
-  { value: 'ALL', label: 'All', dot: '' },
-  { value: 'To Do', label: 'To do', dot: 'bg-zinc-500' },
-  { value: 'Doing', label: 'In progress', dot: 'bg-sky-400' },
-  { value: 'Done', label: 'Done', dot: 'bg-emerald-400' },
-];
-
 export function DashboardView() {
   const { user, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const {
+    tasks,
+    allUsers,
+    loading: tasksLoading,
+    isRefreshing,
+    refreshAll: handleRefresh,
+    handleStatusChange: contextStatusChange,
+    handleSaveTask: contextSaveTask,
+    handleDeleteTask: contextDeleteTask,
+    handleClaimTask,
+    handleReassignTask,
+  } = useTaskContext();
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [userFilter, setUserFilter] = useState<string>('ALL');
@@ -56,79 +59,18 @@ export function DashboardView() {
 
   const isAdmin = user?.role === 'admin';
 
-  // Fetch Tasks from API
-  const fetchTasks = useCallback(async () => {
-    try {
-      const res = await api.get('/tasks');
-      setTasks(res.data);
-    } catch (err) {
-      console.error('Error loading tasks:', err);
-    }
-  }, []);
-
-  // Fetch Users List (Admin Only)
-  const fetchUsers = useCallback(async () => {
-    if (!isAdmin) return;
-    try {
-      const res = await api.get('/users');
-      setAllUsers(res.data);
-    } catch (err) {
-      console.error('Error loading users:', err);
-    }
-  }, [isAdmin]);
-
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/login');
-      } else {
-        setLoading(true);
-        Promise.all([fetchTasks(), fetchUsers()]).finally(() => setLoading(false));
-      }
+    if (!authLoading && !user) {
+      router.push('/login');
     }
-  }, [user, authLoading, router, fetchTasks, fetchUsers]);
+  }, [user, authLoading, router]);
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    try {
-      await Promise.all([fetchTasks(), fetchUsers()]);
-      showToast('Board Refreshed', 'info', 'Updated task board data.');
-    } catch (err: any) {
-      console.error('Refresh error:', err);
-      showToast('Refresh Failed', 'error', err.message || 'Could not refresh tasks.');
-    } finally {
-      setTimeout(() => setIsRefreshing(false), 600);
-    }
-  };
-
-  // Handle DND status change
+  // Handle DND status change with filter reset if needed
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
-    // If filtering by specific status, reset to 'ALL' so the moved task doesn't vanish from screen!
     if (statusFilter !== 'ALL' && statusFilter !== newStatus) {
       setStatusFilter('ALL');
     }
-
-    const isMatch = (t: Task) =>
-      (t._id && String(t._id) === String(taskId)) ||
-      (t.id && String(t.id) === String(taskId));
-
-    setTasks((prevTasks) =>
-      prevTasks.map((t) => (isMatch(t) ? { ...t, status: newStatus } : t))
-    );
-
-    try {
-      const res = await api.patch(`/tasks/${taskId}/status`, { status: newStatus });
-      setTasks((prevTasks) =>
-        prevTasks.map((t) => (isMatch(t) ? res.data : t))
-      );
-      showToast('Task Status Updated', 'success', `Moved task to '${newStatus}'`);
-    } catch (err: any) {
-      console.error('Failed to persist task status change:', err);
-      showToast('Status Update Failed', 'error', err.message || 'Could not update status');
-      fetchTasks();
-    }
+    await contextStatusChange(taskId, newStatus);
   };
 
   // Handle Create / Update Task Submit
@@ -142,50 +84,10 @@ export function DashboardView() {
     project?: string;
     assignedUser?: string | null;
   }) => {
-    try {
-      if (editingTask) {
-        const res = await api.put(`/tasks/${editingTask._id}`, data);
-        setTasks((prev) => prev.map((t) => (t._id === editingTask._id ? res.data : t)));
-        showToast('Task Updated', 'success', `Saved changes for "${data.title}"`);
-      } else {
-        const res = await api.post('/tasks', data);
-        setTasks((prev) => [res.data, ...prev]);
-        showToast('Task Created', 'success', `Added "${data.title}" to board`);
-      }
-      fetchTasks();
-      if (isAdmin) fetchUsers();
-    } catch (err: any) {
-      showToast('Failed to Save Task', 'error', err.message);
-    }
+    await contextSaveTask(data, editingTask?._id);
   };
 
-  // Handle Claim Task
-  const handleClaimTask = async (taskId: string) => {
-    try {
-      const currentUserId = user?.id || user?._id;
-      const res = await api.patch(`/tasks/${taskId}/assign`, { targetUserId: currentUserId });
-      setTasks((prev) => prev.map((t) => (t._id === taskId ? res.data : t)));
-      showToast('Task Claimed', 'success', 'You assigned this task to yourself.');
-    } catch (err: any) {
-      console.error('Failed to claim task:', err);
-      showToast('Claim Failed', 'error', err.message);
-    }
-  };
-
-  // Handle Reassign Task
-  const handleReassignTask = async (taskId: string, targetUserId: string) => {
-    try {
-      const res = await api.patch(`/tasks/${taskId}/assign`, { targetUserId: targetUserId || null });
-      setTasks((prev) => prev.map((t) => (t._id === taskId ? res.data : t)));
-      showToast('Task Reassigned', 'info', 'Updated task assignment.');
-      fetchUsers();
-    } catch (err: any) {
-      console.error('Failed to reassign task:', err);
-      showToast('Reassignment Failed', 'error', err.message);
-    }
-  };
-
-  // Handle Delete Task
+  // Handle Delete Task Confirmation
   const handleDeleteTask = (taskId: string) => {
     setConfirmConfig({
       isOpen: true,
@@ -193,14 +95,7 @@ export function DashboardView() {
       message: 'Are you sure you want to delete this task? This action cannot be undone.',
       confirmText: 'Delete Task',
       onConfirm: async () => {
-        try {
-          await api.delete(`/tasks/${taskId}`);
-          setTasks((prev) => prev.filter((t) => t._id !== taskId));
-          showToast('Task Deleted', 'warning', 'Task removed from board.');
-        } catch (err: any) {
-          console.error('Failed to delete task:', err);
-          showToast('Deletion Failed', 'error', err.message);
-        }
+        await contextDeleteTask(taskId);
       },
     });
   };
@@ -251,7 +146,7 @@ export function DashboardView() {
     return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
   });
 
-  if (authLoading || loading) {
+  if (authLoading || tasksLoading) {
     return <LoadingScreen message="Loading Task Board..." submessage="Fetching tasks and workspace data" />;
   }
 
