@@ -122,7 +122,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 )}
               </div>
 
-              <div className="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+              <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150">
                 {canEdit && (
                   <button
                     onClick={(e) => {

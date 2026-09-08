@@ -154,10 +154,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={onOpenCreateModal}
           title="Create New Task"
-          className="fixed bottom-20 sm:bottom-8 right-5 sm:right-8 z-40 flex items-center space-x-2 px-4.5 py-3.5 sm:px-5 sm:py-4 rounded-full bg-[#ff9f1c] hover:bg-amber-400 text-black font-heading font-black text-xs tracking-wider uppercase shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95 ring-4 ring-amber-500/25 group"
+          className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-40 flex items-center justify-center space-x-0 sm:space-x-2 w-12 h-12 sm:w-auto sm:h-auto sm:px-5 sm:py-4 rounded-full bg-[#ff9f1c] hover:bg-amber-400 text-black font-heading font-black text-xs tracking-wider uppercase shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95 ring-4 ring-amber-500/25 group"
         >
           <Plus className="w-5 h-5 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
-          <span className="font-extrabold">New Task</span>
+          <span className="hidden sm:inline font-extrabold">New Task</span>
         </button>
       )}
     </>
