@@ -42,7 +42,8 @@
   - Normal users can create tasks and claim unassigned tasks exclusively for themselves.
   - Admins can reassign tasks between any user across the entire workspace via interactive task card controls.
 
-### 📱 3. Fully Mobile Responsive UX
+### 📱 3. Fully Mobile Responsive UX & Feedback
+- **Interactive Toast Notification System**: Real-time popover toast alerts for task status changes, creation, claims, reassignments, deletions, and user account approvals.
 - **Mobile Bottom Navigation Bar**: 1-tap switching between Board, Users Directory, and Profile on smartphone viewports (`< 640px`).
 - **Mobile Column View Switcher**: Interactive column tabs (`[ All Columns ] [ To Do ] [ Doing ] [ Done ]`) for focused mobile viewing.
 - **Mobile User Cards**: Stacked user card views replacing heavy tables on mobile devices.

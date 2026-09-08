@@ -33,19 +33,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </Link>
 
-            {/* New Task Pill Button */}
-            {user && onOpenCreateModal && (
-              <button
-                onClick={onOpenCreateModal}
-                className="flex items-center space-x-1 sm:space-x-1.5 px-3 sm:px-4 py-1.5 rounded-full bg-white hover:bg-gray-200 text-black font-extrabold text-xs transition-all shadow-md active:scale-95 ml-1 sm:ml-2"
-              >
-                <span className="w-4 h-4 rounded-full bg-black/10 flex items-center justify-center font-bold">
-                  <Plus className="w-3 h-3 text-black" />
-                </span>
-                <span className="hidden xs:inline">New Task</span>
-                <span className="xs:hidden">New</span>
-              </button>
-            )}
           </div>
 
           {/* User Info & Navigation */}
@@ -161,6 +148,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Profile</span>
           </Link>
         </div>
+      )}
+
+      {/* Floating Action Button (FAB) - Create Task */}
+      {user && onOpenCreateModal && (
+        <button
+          onClick={onOpenCreateModal}
+          title="Create New Task"
+          className="fixed bottom-20 sm:bottom-8 right-5 sm:right-8 z-40 flex items-center space-x-2 px-4.5 py-3.5 sm:px-5 sm:py-4 rounded-full bg-[#ff9f1c] hover:bg-amber-400 text-black font-heading font-black text-xs tracking-wider uppercase shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95 ring-4 ring-amber-500/25 group"
+        >
+          <Plus className="w-5 h-5 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+          <span className="font-extrabold">New Task</span>
+        </button>
       )}
     </>
   );

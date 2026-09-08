@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { Task, TaskStatus, TaskPriority, User } from '../../types';
 import { Navbar } from '../Navbar';
@@ -12,9 +13,11 @@ import { TaskModal } from '../TaskModal';
 import { ConfirmModal } from '../ConfirmModal';
 import { LoadingScreen } from '../LoadingScreen';
 import { Search, RefreshCw, Flame, Users, ArrowUpDown } from 'lucide-react';
+import { CustomDropdown, DropdownOption } from '../CustomDropdown';
 
 export function DashboardView() {
   const { user, loading: authLoading } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -87,8 +90,10 @@ export function DashboardView() {
     try {
       const res = await api.patch(`/tasks/${taskId}/status`, { status: newStatus });
       setTasks((prevTasks) => prevTasks.map((t) => (t._id === taskId ? res.data : t)));
-    } catch (err) {
+      showToast('Task Status Updated', 'success', `Moved task to '${newStatus}'`);
+    } catch (err: any) {
       console.error('Failed to persist task status change:', err);
+      showToast('Status Update Failed', 'error', err.message);
       fetchTasks();
     }
   };
@@ -100,17 +105,24 @@ export function DashboardView() {
     status: TaskStatus;
     priority: TaskPriority;
     dueDate?: string | null;
+    tags?: string[];
     assignedUser?: string | null;
   }) => {
-    if (editingTask) {
-      const res = await api.put(`/tasks/${editingTask._id}`, data);
-      setTasks((prev) => prev.map((t) => (t._id === editingTask._id ? res.data : t)));
-    } else {
-      const res = await api.post('/tasks', data);
-      setTasks((prev) => [res.data, ...prev]);
+    try {
+      if (editingTask) {
+        const res = await api.put(`/tasks/${editingTask._id}`, data);
+        setTasks((prev) => prev.map((t) => (t._id === editingTask._id ? res.data : t)));
+        showToast('Task Updated', 'success', `Saved changes for "${data.title}"`);
+      } else {
+        const res = await api.post('/tasks', data);
+        setTasks((prev) => [res.data, ...prev]);
+        showToast('Task Created', 'success', `Added "${data.title}" to board`);
+      }
+      fetchTasks();
+      if (isAdmin) fetchUsers();
+    } catch (err: any) {
+      showToast('Failed to Save Task', 'error', err.message);
     }
-    fetchTasks();
-    if (isAdmin) fetchUsers();
   };
 
   // Handle Claim Task
@@ -119,8 +131,10 @@ export function DashboardView() {
       const currentUserId = user?.id || user?._id;
       const res = await api.patch(`/tasks/${taskId}/assign`, { targetUserId: currentUserId });
       setTasks((prev) => prev.map((t) => (t._id === taskId ? res.data : t)));
-    } catch (err) {
+      showToast('Task Claimed', 'success', 'You assigned this task to yourself.');
+    } catch (err: any) {
       console.error('Failed to claim task:', err);
+      showToast('Claim Failed', 'error', err.message);
     }
   };
 
@@ -129,9 +143,11 @@ export function DashboardView() {
     try {
       const res = await api.patch(`/tasks/${taskId}/assign`, { targetUserId: targetUserId || null });
       setTasks((prev) => prev.map((t) => (t._id === taskId ? res.data : t)));
+      showToast('Task Reassigned', 'info', 'Updated task assignment.');
       fetchUsers();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to reassign task:', err);
+      showToast('Reassignment Failed', 'error', err.message);
     }
   };
 
@@ -146,8 +162,10 @@ export function DashboardView() {
         try {
           await api.delete(`/tasks/${taskId}`);
           setTasks((prev) => prev.filter((t) => t._id !== taskId));
-        } catch (err) {
+          showToast('Task Deleted', 'warning', 'Task removed from board.');
+        } catch (err: any) {
           console.error('Failed to delete task:', err);
+          showToast('Deletion Failed', 'error', err.message);
         }
       },
     });
@@ -300,38 +318,34 @@ export function DashboardView() {
             </button>
 
             {/* Sort Dropdown */}
-            <div className="relative inline-flex items-center shrink-0">
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none z-10" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="pl-8 pr-3 py-1 bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/40 rounded-full text-xs font-bold text-gray-200 focus:outline-none focus:border-[#ff9f1c] cursor-pointer appearance-none shrink-0"
-              >
-                <option value="NEWEST">Sort: Newest</option>
-                <option value="DUE_DATE">Sort: Due Date</option>
-                <option value="PRIORITY">Sort: Priority</option>
-              </select>
-            </div>
+            <CustomDropdown
+              options={[
+                { value: 'NEWEST', label: 'Sort: Newest' },
+                { value: 'DUE_DATE', label: 'Sort: Due Date' },
+                { value: 'PRIORITY', label: 'Sort: Priority' },
+              ]}
+              value={sortBy}
+              onChange={setSortBy}
+              icon={<ArrowUpDown className="w-3.5 h-3.5" />}
+            />
 
             {/* Filter by User Selector */}
-            <div className="relative inline-flex items-center shrink-0">
-              <Users className="w-3.5 h-3.5 text-[#ff9f1c] absolute left-3 pointer-events-none z-10" />
-              <select
-                value={userFilter}
-                onChange={(e) => setUserFilter(e.target.value)}
-                className="pl-8 pr-3 py-1 bg-[#141417] border border-[#242429] hover:border-[#ff9f1c]/40 rounded-full text-xs font-bold text-gray-200 focus:outline-none focus:border-[#ff9f1c] cursor-pointer appearance-none max-w-[140px] truncate"
-              >
-                <option value="ALL">All Assignees</option>
-                <option value="ME">Assigned to Me</option>
-                <option value="UNASSIGNED">Unassigned</option>
-                {isAdmin &&
-                  (allUsers || []).map((u) => (
-                    <option key={u.id || u._id} value={`USER_${u.id || u._id}`}>
-                      {u.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
+            <CustomDropdown
+              options={[
+                { value: 'ALL', label: 'All Assignees' },
+                { value: 'ME', label: 'Assigned to Me' },
+                { value: 'UNASSIGNED', label: 'Unassigned' },
+                ...(isAdmin
+                  ? (allUsers || []).map((u) => ({
+                      value: `USER_${u.id || u._id}`,
+                      label: u.name,
+                    }))
+                  : []),
+              ]}
+              value={userFilter}
+              onChange={setUserFilter}
+              icon={<Users className="w-3.5 h-3.5" />}
+            />
 
             <button
               onClick={() => {

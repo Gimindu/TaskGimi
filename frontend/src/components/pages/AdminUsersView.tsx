@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import api from '../../lib/api';
 import { User, Task } from '../../types';
 import { Navbar } from '../Navbar';
@@ -14,6 +15,7 @@ import { ShieldCheck, Users, Clock, CheckCircle2, Search, RefreshCw, LayoutGrid 
 
 export function AdminUsersView() {
   const { user, loading: authLoading } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
 
   const [users, setUsers] = useState<User[]>([]);
@@ -69,9 +71,11 @@ export function AdminUsersView() {
   const handleApproveUser = async (userId: string) => {
     try {
       await api.patch(`/users/${userId}/approve`);
+      showToast('User Approved', 'success', 'Account granted access to workspace.');
       fetchUsers();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to approve user:', err);
+      showToast('Approval Failed', 'error', err.message);
     }
   };
 
@@ -84,10 +88,12 @@ export function AdminUsersView() {
       onConfirm: async () => {
         try {
           await api.delete(`/users/${userId}`);
+          showToast('User Removed', 'warning', 'User account deleted.');
           fetchUsers();
           fetchTasks();
-        } catch (err) {
+        } catch (err: any) {
           console.error('Failed to remove user:', err);
+          showToast('Action Failed', 'error', err.message);
         }
       },
     });
