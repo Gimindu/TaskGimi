@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { LoadingScreen } from '../LoadingScreen';
 import {
@@ -18,6 +19,14 @@ import {
 export function LandingPageView() {
   const { user, loading: authLoading } = useAuth();
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
+  const router = useRouter();
+
+  // Redirect authenticated user directly to /dashboard
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, authLoading, router]);
 
   // Initial landing page loading timer for smooth splash effect
   useEffect(() => {

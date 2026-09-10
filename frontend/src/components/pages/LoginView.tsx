@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
-import { LogIn, Mail, Lock, AlertCircle, ShieldCheck, User as UserIcon, Target } from 'lucide-react';
+import { useServerStatus } from '../../context/ServerStatusContext';
+import { RenderColdStartNotice } from '../RenderColdStartNotice';
+import { LogIn, Mail, Lock, AlertCircle, ShieldCheck, User as UserIcon, Target, Loader2 } from 'lucide-react';
 
 export function LoginView() {
   const [email, setEmail] = useState('');
@@ -12,6 +14,7 @@ export function LoginView() {
   const [submitting, setSubmitting] = useState(false);
 
   const { login, user, error, clearError } = useAuth();
+  const { status, isWarmingUp } = useServerStatus();
   const router = useRouter();
 
   useEffect(() => {
@@ -50,7 +53,7 @@ export function LoginView() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#09090b] font-sans">
       <div className="w-full max-w-md">
-        <div className="flex items-center space-x-3 mb-8 justify-center">
+        <div className="flex items-center space-x-3 mb-6 justify-center">
           <div className="w-9 h-9 rounded-full bg-[#18181b] border border-[#27272a] flex items-center justify-center">
             <Target className="w-4 h-4 text-[#ff9f1c]" />
           </div>
@@ -58,6 +61,9 @@ export function LoginView() {
             Less Task
           </span>
         </div>
+
+        {/* Render Free Tier Cold Start Notice for Examiners */}
+        <RenderColdStartNotice />
 
         <div className="bg-[#141417] border border-[#242429] rounded-2xl p-8">
           <div className="mb-6">
@@ -114,8 +120,17 @@ export function LoginView() {
               disabled={submitting}
               className="w-full flex items-center justify-center space-x-2 py-3 rounded-full bg-[#ff9f1c] hover:bg-amber-400 disabled:opacity-50 text-black font-heading font-bold text-sm transition-colors mt-2"
             >
-              <LogIn className="w-4 h-4" />
-              <span>{submitting ? 'Signing in…' : 'Sign in'}</span>
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{isWarmingUp ? 'Waking backend (~30s)...' : 'Signing in…'}</span>
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign in</span>
+                </>
+              )}
             </button>
           </form>
 

@@ -1,25 +1,28 @@
 'use client';
 
 import React from 'react';
-import { Target, Sparkles } from 'lucide-react';
+import { Target } from 'lucide-react';
+import { RenderColdStartNotice } from './RenderColdStartNotice';
 
 interface LoadingScreenProps {
   message?: string;
   submessage?: string;
+  showNotice?: boolean;
 }
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   message = 'Loading Workspace...',
   submessage = 'Organizing your tasks and syncing live workspace data',
+  showNotice = true,
 }) => {
   return (
-    <div className="min-h-screen w-full bg-[#09090b] flex flex-col items-center justify-center relative overflow-hidden font-sans select-none z-50">
+    <div className="min-h-screen w-full bg-[#09090b] flex flex-col items-center justify-center relative overflow-hidden font-sans select-none z-50 p-4">
       {/* Dynamic Glow Orbs in Background */}
       <div className="absolute w-[500px] h-[500px] bg-[#ff9f1c]/10 rounded-full blur-3xl animate-pulse pointer-events-none -top-32 -left-32" />
       <div className="absolute w-[400px] h-[400px] bg-[#ff9f1c]/5 rounded-full blur-3xl animate-pulse pointer-events-none -bottom-24 -right-24" />
 
       {/* Main Glassmorphic Container */}
-      <div className="relative z-10 flex flex-col items-center text-center p-8 max-w-sm w-full mx-auto">
+      <div className="relative z-10 flex flex-col items-center text-center p-6 sm:p-8 max-w-md w-full mx-auto">
         {/* Brand Icon with Pulsing Halo */}
         <div className="relative mb-6 group">
           {/* Animated Spinner Ring */}
@@ -47,14 +50,21 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           <span>{message}</span>
         </h2>
 
-        <p className="text-xs text-gray-500 font-normal leading-relaxed max-w-xs mb-6">
+        <p className="text-xs text-gray-500 font-normal leading-relaxed max-w-xs mb-5">
           {submessage}
         </p>
 
         {/* Pulsing Progress Bar */}
-        <div className="w-48 h-1.5 bg-[#141417] border border-[#242429] rounded-full overflow-hidden relative shadow-inner">
+        <div className="w-48 h-1.5 bg-[#141417] border border-[#242429] rounded-full overflow-hidden relative shadow-inner mb-6">
           <div className="h-full bg-gradient-to-r from-amber-600 via-[#ff9f1c] to-amber-300 rounded-full animate-pulse w-full" />
         </div>
+
+        {/* Render Cold Start Notice for Examiners on Initial Load */}
+        {showNotice && (
+          <div className="w-full text-left">
+            <RenderColdStartNotice />
+          </div>
+        )}
       </div>
     </div>
   );

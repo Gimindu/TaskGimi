@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Plus, ShieldCheck, User as UserIcon, LayoutGrid, Users, Target } from 'lucide-react';
+import { ServerStatusBadge } from './ServerStatusBadge';
 
 interface NavbarProps {
   onOpenCreateModal?: () => void;
@@ -22,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Top Header Navbar */}
       <header className="sticky top-0 z-40 w-full bg-[#09090b]/95 backdrop-blur-lg border-b border-[#242429] px-3 sm:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Brand Logo & WORKSPACE Title */}
+          {/* Brand Logo & Server Status Badge */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             <Link href="/dashboard" className="flex items-center space-x-2 sm:space-x-3 group">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#18181b] border border-[#27272a] flex items-center justify-center text-amber-500 group-hover:border-amber-500 transition-all shrink-0">
@@ -32,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 LESS TASK
               </span>
             </Link>
+            <ServerStatusBadge />
           </div>
 
           {/* User Info & Navigation */}

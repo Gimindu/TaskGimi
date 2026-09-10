@@ -3,6 +3,7 @@ import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
 import { TaskProvider } from '../context/TaskContext';
+import { ServerStatusProvider } from '../context/ServerStatusContext';
 
 export const metadata: Metadata = {
   title: 'Less Task | Workspace Task Management',
@@ -22,11 +23,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased bg-[#09090b] text-gray-100 min-h-screen" suppressHydrationWarning>
-        <AuthProvider>
-          <ToastProvider>
-            <TaskProvider>{children}</TaskProvider>
-          </ToastProvider>
-        </AuthProvider>
+        <ServerStatusProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <TaskProvider>{children}</TaskProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </ServerStatusProvider>
       </body>
     </html>
   );
