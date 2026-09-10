@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { LoadingScreen } from '../LoadingScreen';
+import { ServerStatusBadge } from '../ServerStatusBadge';
+import { RenderColdStartNotice } from '../RenderColdStartNotice';
 import {
   Target,
   ArrowRight,
@@ -50,14 +52,17 @@ export function LandingPageView() {
       {/* Header */}
       <header className="sticky top-0 z-40 w-full bg-[#09090b]/90 backdrop-blur-xl border-b border-[#242429] px-4 sm:px-8 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-full bg-[#18181b] border border-[#27272a] flex items-center justify-center">
-              <Target className="w-4 h-4 text-[#ff9f1c]" />
-            </div>
-            <span className="font-heading font-black text-lg tracking-wide text-white uppercase">
-              Less Task
-            </span>
-          </Link>
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-full bg-[#18181b] border border-[#27272a] flex items-center justify-center">
+                <Target className="w-4 h-4 text-[#ff9f1c]" />
+              </div>
+              <span className="font-heading font-black text-lg tracking-wide text-white uppercase">
+                Less Task
+              </span>
+            </Link>
+            <ServerStatusBadge />
+          </div>
 
           <nav className="hidden md:flex items-center space-x-8 text-sm text-gray-400">
             <a href="#workflow" className="hover:text-white transition-colors">
@@ -98,85 +103,88 @@ export function LandingPageView() {
       </header>
 
       {/* Hero */}
-      <section className="px-4 sm:px-8 max-w-6xl mx-auto pt-16 pb-20 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 items-center">
-        <div className="space-y-7">
-          <h1 className="font-heading font-black text-4xl sm:text-5xl text-white leading-[1.15] max-w-lg">
-            Fewer tasks in progress. More things finished.
-          </h1>
+      <section className="px-4 sm:px-8 max-w-6xl mx-auto pt-8 pb-20">
+        <RenderColdStartNotice />
+        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 items-center pt-8">
+          <div className="space-y-7">
+            <h1 className="font-heading font-black text-4xl sm:text-5xl text-white leading-[1.15] max-w-lg">
+              Fewer tasks in progress. More things finished.
+            </h1>
 
-          <p className="text-base text-gray-400 leading-relaxed max-w-md">
-            Less Task is a three-column workspace built around one rule: a task
-            only moves forward. To Do, Doing, Done - nothing sits in five
-            different lists, and nothing gets lost in a backlog nobody opens.
-          </p>
+            <p className="text-base text-gray-400 leading-relaxed max-w-md">
+              Less Task is a three-column workspace built around one rule: a task
+              only moves forward. To Do, Doing, Done - nothing sits in five
+              different lists, and nothing gets lost in a backlog nobody opens.
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 pt-2">
-            <Link
-              href={user ? '/dashboard' : '/register'}
-              className="inline-flex items-center justify-center space-x-2 px-7 py-3 rounded-full bg-[#ff9f1c] hover:bg-amber-400 text-black font-heading font-black text-sm transition-colors"
-            >
-              <span>{user ? 'Open your board' : 'Start a workspace'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            {!user && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 pt-2">
               <Link
-                href="/login"
-                className="text-sm font-semibold text-gray-400 hover:text-white transition-colors"
+                href={user ? '/dashboard' : '/register'}
+                className="inline-flex items-center justify-center space-x-2 px-7 py-3 rounded-full bg-[#ff9f1c] hover:bg-amber-400 text-black font-heading font-black text-sm transition-colors"
               >
-                Already have an account? Sign in
+                <span>{user ? 'Open your board' : 'Start a workspace'}</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
-            )}
-          </div>
-        </div>
 
-        {/* Task panel */}
-        <div className="bg-[#141417] border border-[#242429] rounded-2xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between pb-4 border-b border-[#242429]">
-            <div>
-              <p className="text-sm font-bold text-white">Product Launch</p>
-              <p className="text-xs text-gray-500">3 members · updated 2m ago</p>
+              {!user && (
+                <Link
+                  href="/login"
+                  className="text-sm font-semibold text-gray-400 hover:text-white transition-colors"
+                >
+                  Already have an account? Sign in
+                </Link>
+              )}
             </div>
-            <div className="flex -space-x-2">
-              <div className="w-7 h-7 rounded-full bg-amber-500 ring-2 ring-[#141417] flex items-center justify-center text-[10px] font-bold text-black">
-                AR
+          </div>
+
+          {/* Task panel */}
+          <div className="bg-[#141417] border border-[#242429] rounded-2xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-4 border-b border-[#242429]">
+              <div>
+                <p className="text-sm font-bold text-white">Product Launch</p>
+                <p className="text-xs text-gray-500">3 members · updated 2m ago</p>
               </div>
-              <div className="w-7 h-7 rounded-full bg-emerald-500 ring-2 ring-[#141417] flex items-center justify-center text-[10px] font-bold text-black">
-                SM
+              <div className="flex -space-x-2">
+                <div className="w-7 h-7 rounded-full bg-amber-500 ring-2 ring-[#141417] flex items-center justify-center text-[10px] font-bold text-black">
+                  AR
+                </div>
+                <div className="w-7 h-7 rounded-full bg-emerald-500 ring-2 ring-[#141417] flex items-center justify-center text-[10px] font-bold text-black">
+                  SM
+                </div>
+                <div className="w-7 h-7 rounded-full bg-[#ff9f1c] ring-2 ring-[#141417] flex items-center justify-center text-[10px] font-bold text-black">
+                  JD
+                </div>
               </div>
-              <div className="w-7 h-7 rounded-full bg-[#ff9f1c] ring-2 ring-[#141417] flex items-center justify-center text-[10px] font-bold text-black">
-                JD
+            </div>
+
+            <div className="flex items-start gap-3 py-2">
+              <Circle className="w-4 h-4 text-gray-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-gray-200">
+                  Setup MongoDB Atlas indexes
+                </p>
+                <p className="text-xs text-gray-500">Alex R. · To Do</p>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-start gap-3 py-2">
-            <Circle className="w-4 h-4 text-gray-600 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-gray-200">
-                Setup MongoDB Atlas indexes
-              </p>
-              <p className="text-xs text-gray-500">Alex R. · To Do</p>
+            <div className="flex items-start gap-3 py-3 px-3 -mx-3 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-400 shadow-md shadow-blue-500/20">
+              <Circle className="w-4 h-4 text-white/70 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-white">
+                  Refactor auth JWT middleware
+                </p>
+                <p className="text-xs text-white/80">Jane Doe · Doing</p>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-start gap-3 py-3 px-3 -mx-3 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-400 shadow-md shadow-blue-500/20">
-            <Circle className="w-4 h-4 text-white/70 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-bold text-white">
-                Refactor auth JWT middleware
-              </p>
-              <p className="text-xs text-white/80">Jane Doe · Doing</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3 py-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-gray-500 line-through decoration-gray-600">
-                Theme & UI palette overhaul
-              </p>
-              <p className="text-xs text-gray-600">Jane Doe · Done</p>
+            <div className="flex items-start gap-3 py-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-gray-500 line-through decoration-gray-600">
+                  Theme & UI palette overhaul
+                </p>
+                <p className="text-xs text-gray-600">Jane Doe · Done</p>
+              </div>
             </div>
           </div>
         </div>
