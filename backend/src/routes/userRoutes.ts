@@ -5,12 +5,12 @@ import { requireRole } from '../middleware/rbac';
 
 const router = Router();
 
-// Require JWT authentication
+// All user routes require a valid JWT
 router.use(authenticateJWT);
 
 // @route   GET /api/users
-// @desc    Get all users list (For user assignment & sorting/filtering)
-// @access  Private (Authenticated users)
+// @desc    Returns all users — used by the frontend for the assignee dropdown and admin user directory
+// @access  Private (any authenticated user)
 router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const users = await User.find({}, 'name email role isApproved createdAt').sort({ createdAt: -1 });
@@ -20,12 +20,12 @@ router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> 
   }
 });
 
-// Require Admin role for approval and deletion management
+// Everything below this line is admin-only
 router.use(requireRole('admin'));
 
 // @route   PATCH /api/users/:id/approve
-// @desc    Approve a pending user registration (Admin only)
-// @access  Private (Admin)
+// @desc    Grants login access to a pending user registration
+// @access  Admin only
 router.patch('/:id/approve', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -55,8 +55,8 @@ router.patch('/:id/approve', async (req: AuthenticatedRequest, res: Response): P
 });
 
 // @route   DELETE /api/users/:id
-// @desc    Decline / Remove user account (Admin only)
-// @access  Private (Admin)
+// @desc    Declines a pending registration or removes an existing user account
+// @access  Admin only
 router.delete('/:id', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -67,6 +67,7 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response): Promise<
       return;
     }
 
+    // Protect admin accounts from accidental deletion
     if (user.role === 'admin') {
       res.status(400).json({ message: 'Cannot delete an administrator account.' });
       return;

@@ -5,12 +5,11 @@ import { authenticateJWT, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
 
-// All task routes require authentication
+// All task routes require a valid JWT
 router.use(authenticateJWT);
 
 // @route   GET /api/tasks
-// @desc    Get tasks based on role and permissions
-// @access  Private (User & Admin)
+// @access  Private
 router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
@@ -18,7 +17,8 @@ router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> 
 
     let query = {};
     if (role !== 'admin') {
-      // Normal users can view tasks created by them, assigned to them, or unassigned tasks
+      // Normal users only see tasks that are relevant to them — their own creations,
+      // tasks assigned to them, or unassigned tasks they could potentially claim
       query = {
         $or: [
           { creator: userId },
@@ -41,7 +41,6 @@ router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> 
 });
 
 // @route   POST /api/tasks
-// @desc    Create a new task
 // @access  Private
 router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -57,10 +56,10 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
     let targetAssignedUser = null;
     if (assignedUser) {
       if (role === 'admin') {
-        // Admin can assign to any user
+        // Admin can assign to any user at creation time
         targetAssignedUser = assignedUser;
       } else {
-        // Normal user can only assign to themselves if specified
+        // Normal users can pre-assign to themselves but cannot assign to others
         targetAssignedUser = userId;
       }
     }
@@ -83,6 +82,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
       assignedUser: targetAssignedUser,
     });
 
+    // Re-fetch with populated references so the client gets full user objects, not just IDs
     const populatedTask = await Task.findById(newTask._id)
       .populate('creator', 'name email role')
       .populate('assignedUser', 'name email role');
@@ -94,7 +94,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
 });
 
 // @route   PUT /api/tasks/:id
-// @desc    Update task details (Title, Description, Status, Priority, DueDate, Tags, Project, Assignment)
+// @desc    Full task edit — restricted to admin or the original creator
 // @access  Private
 router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -109,7 +109,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<voi
       return;
     }
 
-    // Permission check: Only admin or task creator can update task details (title, description, priority, etc.)
+    // Assigned members can only update status via PATCH /status — not full task details
     const isCreator = task.creator.toString() === userId;
 
     if (role !== 'admin' && !isCreator) {
@@ -137,12 +137,11 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<voi
       task.project = project ? String(project).trim() : 'General';
     }
 
-    // Handle assignment
+    // Assignment rules: admin can reassign freely; normal users can only assign to themselves
     if (assignedUser !== undefined) {
       if (role === 'admin') {
         task.assignedUser = assignedUser ? assignedUser : null;
       } else {
-        // Normal user can only assign to themselves if unassigned or already assigned/creator
         if (assignedUser === userId || assignedUser === null) {
           task.assignedUser = assignedUser ? userId : null;
         } else {
@@ -165,7 +164,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<voi
 });
 
 // @route   PATCH /api/tasks/:id/status
-// @desc    Update task status (Interactive Drag and Drop)
+// @desc    Lightweight status-only update — called on every Kanban drag-and-drop
 // @access  Private
 router.patch('/:id/status', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -189,6 +188,7 @@ router.patch('/:id/status', async (req: AuthenticatedRequest, res: Response): Pr
     const isAssigned = task.assignedUser?.toString() === userId;
     const isUnassigned = !task.assignedUser;
 
+    // Allow status updates by: admin, the creator, the assigned user, or anyone if unassigned
     if (role !== 'admin' && !isCreator && !isAssigned && !isUnassigned) {
       res.status(403).json({ message: 'Permission denied to modify status for this task.' });
       return;
@@ -208,12 +208,12 @@ router.patch('/:id/status', async (req: AuthenticatedRequest, res: Response): Pr
 });
 
 // @route   PATCH /api/tasks/:id/assign
-// @desc    Assign or reassign task
+// @desc    Claim (normal user) or reassign (admin) a task
 // @access  Private
 router.patch('/:id/assign', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { targetUserId } = req.body; // user ID to assign to (or null)
+    const { targetUserId } = req.body;
     const userId = req.user?.id;
     const role = req.user?.role;
 
@@ -224,7 +224,7 @@ router.patch('/:id/assign', async (req: AuthenticatedRequest, res: Response): Pr
     }
 
     if (role === 'admin') {
-      // Admin can reassign to any valid user or unassign
+      // Admin: can assign to any valid user or unassign entirely
       if (targetUserId) {
         const userExists = await User.findById(targetUserId);
         if (!userExists) {
@@ -236,7 +236,7 @@ router.patch('/:id/assign', async (req: AuthenticatedRequest, res: Response): Pr
         task.assignedUser = null;
       }
     } else {
-      // Normal user can only assign unassigned task strictly to themselves
+      // Normal user: can only claim unassigned tasks for themselves
       if (task.assignedUser && task.assignedUser.toString() !== userId) {
         res.status(403).json({ message: 'Task is already assigned to another user.' });
         return;
@@ -257,8 +257,7 @@ router.patch('/:id/assign', async (req: AuthenticatedRequest, res: Response): Pr
 });
 
 // @route   DELETE /api/tasks/:id
-// @desc    Delete task
-// @access  Private
+// @access  Private — admin or task creator only
 router.delete('/:id', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;

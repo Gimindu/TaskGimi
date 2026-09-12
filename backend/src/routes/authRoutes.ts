@@ -6,13 +6,12 @@ import { authenticateJWT, AuthenticatedRequest } from '../middleware/auth';
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'task_gimi_super_secret_jwt_key_2026_!@#';
 
-// Generate JWT Helper
+// Packs user identity into a signed 7-day token
 const generateToken = (id: string, email: string, role: 'user' | 'admin', name: string) => {
   return jwt.sign({ id, email, role, name }, JWT_SECRET, { expiresIn: '7d' });
 };
 
 // @route   POST /api/auth/register
-// @desc    Register a new normal user (Admin registration strictly blocked)
 // @access  Public
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -26,6 +25,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     const cleanEmail = String(email).trim().toLowerCase();
     const cleanName = String(name).trim();
 
+    // Block any attempt to self-assign admin role — admins are created via seed script only
     if (role === 'admin') {
       res.status(403).json({
         message: 'Administrator accounts cannot be created via registration. Please contact system administrator.',
@@ -39,6 +39,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // New accounts default to unapproved — login is blocked until an admin approves them
     const user = await User.create({
       name: cleanName,
       email: cleanEmail,
@@ -67,7 +68,6 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
 });
 
 // @route   POST /api/auth/login
-// @desc    Authenticate user & get JWT token
 // @access  Public
 router.post('/login', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -83,6 +83,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 
     console.log(`[Auth] Login attempt for email: "${cleanEmail}"`);
 
+    // Explicitly select password since the field has `select: false` on the schema
     const user = await User.findOne({ email: cleanEmail }).select('+password');
     if (!user) {
       console.warn(`[Auth Failed] No user found with email: "${cleanEmail}"`);
@@ -97,7 +98,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check Admin Approval Status
+    // Unapproved users can exist in the DB but must not be able to log in
     if (!user.isApproved) {
       console.warn(`[Auth Blocked] User "${cleanEmail}" is pending administrator approval.`);
       res.status(403).json({
@@ -129,8 +130,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 });
 
 // @route   GET /api/auth/me
-// @desc    Get current authenticated user profile
-// @access  Private
+// @access  Private — used by the frontend on page load to restore session from stored token
 router.get('/me', authenticateJWT, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.user?.id);
