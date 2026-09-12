@@ -184,8 +184,8 @@ export function DashboardView() {
             </button>
           </div>
 
-          {/* Filter & Sort Pills Bar - Horizontally Scrollable on Mobile */}
-          <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1.5 scrollbar-none">
+          {/* Filter & Sort Pills Bar */}
+          <div className="flex flex-wrap items-center gap-2 max-w-full pb-1.5 relative z-30">
             {/* Search Input Pill */}
             <div className="relative shrink-0">
               <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-2.5" />

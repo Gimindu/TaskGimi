@@ -447,7 +447,7 @@ export function ProfileView() {
                 return (
                   <div
                     key={task._id}
-                    className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl transition-all duration-200 shadow-md hover:shadow-xl flex flex-col justify-between space-y-4 group overflow-hidden ${
+                    className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl transition-all duration-200 shadow-md hover:shadow-xl flex flex-col justify-between space-y-4 group ${
                       isOverdue
                         ? 'bg-gradient-to-br from-rose-950/30 via-[#141417] to-[#141417] border-rose-500/70 border-l-4 border-l-rose-500 ring-1 ring-rose-500/40 shadow-rose-950/40 hover:border-rose-400'
                         : `bg-[#141417] hover:bg-[#18181b] border border-[#242429] hover:border-[#ff9f1c]/50 border-l-4 ${priorityBorder} hover:shadow-amber-500/5`
@@ -583,10 +583,12 @@ export function ProfileView() {
                           <CustomDropdown
                             options={[
                               { value: '', label: '-- Unassigned --' },
-                              ...(allUsers || []).map((u) => ({
-                                value: u.id || u._id || '',
-                                label: `${u.name} (${u.role})`,
-                              })),
+                              ...(allUsers || [])
+                                .filter((u) => u.isApproved !== false)
+                                .map((u) => ({
+                                  value: u.id || u._id || '',
+                                  label: `${u.name} (${u.role})`,
+                                })),
                             ]}
                             value={assignedUserId || ''}
                             onChange={(targetUserId) => handleReassignTask(task._id, targetUserId)}

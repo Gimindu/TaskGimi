@@ -63,13 +63,19 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
 
   return (
     <div
-      className={`relative inline-flex items-center text-left shrink-0 ${fullWidth ? 'w-full flex' : ''} ${className}`}
+      className={`relative inline-flex items-center text-left shrink-0 ${fullWidth ? 'w-full flex' : ''} ${
+        isOpen ? 'z-[999]' : 'z-10'
+      } ${className}`}
       ref={dropdownRef}
       onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <button
         type="button"
         disabled={disabled}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
         onClick={(e) => {
           e.stopPropagation();
           if (!disabled) setIsOpen(!isOpen);
@@ -97,7 +103,9 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
 
       {isOpen && (
         <div
-          className={`absolute top-full mt-1.5 rounded-2xl bg-[#141417]/95 border border-[#27272a] shadow-2xl z-[100] py-1.5 animate-fadeIn backdrop-blur-2xl ${menuWidthClass} ${
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          className={`absolute top-full mt-1.5 rounded-2xl bg-[#141417] border border-[#27272a] shadow-2xl z-[999] py-1.5 animate-fadeIn backdrop-blur-2xl ${menuWidthClass} ${
             !fullWidth && align === 'right' ? 'right-0' : 'left-0'
           }`}
         >
@@ -108,6 +116,8 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
                 <button
                   key={opt.value}
                   type="button"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();
                     onChange(opt.value);
