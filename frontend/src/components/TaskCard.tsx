@@ -3,7 +3,7 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Task, User } from '../types';
-import { UserCheck, Edit3, Trash2, UserPlus, Calendar, Folder, MoreHorizontal, AlertTriangle } from 'lucide-react';
+import { UserCheck, Edit3, Trash2, UserPlus, Calendar, Folder, AlertTriangle } from 'lucide-react';
 import { CustomDropdown } from './CustomDropdown';
 
 interface TaskCardProps {
@@ -147,12 +147,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     <Trash2 className="h-3 w-3" />
                   </button>
                 )}
-                <button
-                  title="More"
-                  className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
-                >
-                  <MoreHorizontal className="h-3.5 w-3.5" />
-                </button>
               </div>
             </div>
 
