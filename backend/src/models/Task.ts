@@ -44,10 +44,12 @@ const TaskSchema = new Schema<ITask>(
       type: Date,
       default: null,
     },
+    // Free-form category labels (e.g. #Frontend, #Bug)
     tags: {
       type: [String],
       default: [],
     },
+    // Workspace grouping — defaults to 'General' if not specified
     project: {
       type: String,
       default: 'General',
@@ -58,6 +60,7 @@ const TaskSchema = new Schema<ITask>(
       ref: 'User',
       required: true,
     },
+    // Nullable — null means the task is unassigned and claimable by any normal user
     assignedUser: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -65,6 +68,7 @@ const TaskSchema = new Schema<ITask>(
     },
   },
   {
+    // Automatically manages createdAt and updatedAt fields
     timestamps: true,
   }
 );

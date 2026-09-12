@@ -11,17 +11,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect Database
+// Boot database connection before accepting requests
 connectDB();
 
-// Middleware
+// Allow cross-origin requests (frontend on different domain/port)
 app.use(cors({
   origin: '*',
   credentials: true,
 }));
 app.use(express.json());
 
-// Root API Endpoint
+// Root endpoint — useful for quick sanity checks on deployment
 app.get('/', (req, res) => {
   res.json({
     status: 'ok',
@@ -31,12 +31,12 @@ app.get('/', (req, res) => {
   });
 });
 
-// Routes
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 
-// Health Check Endpoint
+// Health check used by Render to verify the service is alive
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',

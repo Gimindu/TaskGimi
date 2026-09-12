@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+// Shape of the decoded JWT payload — kept in sync with the token we sign in authRoutes
 export interface AuthUserPayload {
   id: string;
   email: string;
@@ -8,10 +9,12 @@ export interface AuthUserPayload {
   name: string;
 }
 
+// Extend Express Request to carry the decoded user after token verification
 export interface AuthenticatedRequest extends Request {
   user?: AuthUserPayload;
 }
 
+// Middleware: validates the Bearer token on every protected route
 export const authenticateJWT = (
   req: AuthenticatedRequest,
   res: Response,
@@ -32,6 +35,7 @@ export const authenticateJWT = (
     req.user = decoded;
     next();
   } catch (error) {
+    // Covers both expired and tampered tokens
     res.status(401).json({ message: 'Invalid or expired token.' });
     return;
   }

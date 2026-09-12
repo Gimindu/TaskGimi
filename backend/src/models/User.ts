@@ -26,6 +26,7 @@ const UserSchema = new Schema<IUser>(
       lowercase: true,
       trim: true,
     },
+    // `select: false` prevents password from being returned in queries unless explicitly requested
     password: {
       type: String,
       required: [true, 'Password is required'],
@@ -37,6 +38,7 @@ const UserSchema = new Schema<IUser>(
       enum: ['user', 'admin'],
       default: 'user',
     },
+    // New registrations default to unapproved — admin must manually approve via the User Directory
     isApproved: {
       type: Boolean,
       default: false,
@@ -47,7 +49,7 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-// Hash password before saving
+// Hash password before saving — only runs when the password field is actually modified
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {
@@ -59,7 +61,7 @@ UserSchema.pre('save', async function (next) {
   }
 });
 
-// Compare password method
+// Instance method used during login to safely compare the plain-text candidate against the stored hash
 UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return await bcrypt.compare(candidatePassword, this.password);
 };

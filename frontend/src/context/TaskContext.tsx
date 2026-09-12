@@ -34,7 +34,7 @@ interface TaskContextType {
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
-// Cache TTL: 5 minutes (300,000 ms)
+// Skip re-fetching if data was loaded within the last 5 minutes — avoids hammering the API on page transitions
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -50,7 +50,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = user?.role === 'admin';
   const currentUserId = user?.id || user?._id;
 
-  // Helper ID comparison
+  // MongoDB docs can expose _id or id depending on serialization — this normalizes both
   const isTaskMatch = (t: Task, taskId: string) =>
     (t._id && String(t._id) === String(taskId)) ||
     (t.id && String(t.id) === String(taskId));
@@ -75,7 +75,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Load Initial Data with Cache Check
+  // Entry point for data loading — respects cache unless forced (e.g. manual refresh)
   const loadData = useCallback(async (force = false) => {
     if (!user) {
       setTasks([]);
@@ -117,7 +117,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
-  // Silent Background Auto-Refresh Function (No spinner flicker)
+  // Runs in the background every 8s — compares new data against current state to avoid unnecessary re-renders
   const silentRefresh = useCallback(async () => {
     if (!user) return;
     try {
@@ -182,7 +182,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Optimistic Status Change
+  // Optimistically updates status in local state before the API responds — makes DnD feel instant
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
     // Instant local cache update
     setTasks((prev) =>
@@ -242,7 +242,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Optimistic Delete
+  // Removes the task from local state immediately; rolls back via full re-fetch on failure
   const handleDeleteTask = async (taskId: string) => {
     // Instant local removal from cache
     setTasks((prev) => prev.filter((t) => !isTaskMatch(t, taskId)));
@@ -282,7 +282,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Optimistic Reassign
+  // Admin-only: immediately reflects the new assignee in the UI, then confirms with the server
   const handleReassignTask = async (taskId: string, targetUserId: string) => {
     const targetUser = allUsers.find((u) => (u.id || u._id) === targetUserId) || null;
 
