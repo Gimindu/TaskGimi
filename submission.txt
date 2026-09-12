@@ -2,6 +2,10 @@
 LessTASK - FULL-STACK TASK MANAGEMENT SYSTEM SUBMISSION
 ==================================================================
 
+
+Note: The backend is hosted on Render's free tier and may take 10-30 seconds to respond on the very first request (cold start).
+      Please wait a moment if the app appears to load slowly initially.
+
 1. GITHUB REPOSITORY LINK:
    https://github.com/Gimindu/TaskGimi
 
@@ -22,21 +26,3 @@ LessTASK - FULL-STACK TASK MANAGEMENT SYSTEM SUBMISSION
    - Email:      genuka56@gmail.com
    - Phone:      0702992332
    - Portfolio:  https://gimindu-portfolio-v1.vercel.app/
-
-==================================================================
-  Notes for Evaluators
-==================================================================
-
-- The backend is hosted on Render's free tier. If the API takes
-  10-30 seconds to respond on first visit, this is normal cold-start
-  behaviour (free tier spins down after inactivity). A warm-up notice
-  is displayed on the frontend landing page.
-
-- Administrator accounts are created exclusively via the seed script
-  (npm run seed:admin) and cannot be registered through the public
-  signup form.
-
-- New user registrations default to "pending" status and require
-  admin approval before login access is granted.
-
-==================================================================
