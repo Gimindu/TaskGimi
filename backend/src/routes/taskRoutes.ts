@@ -56,7 +56,12 @@ router.post('/', async (req: AuthenticatedRequest, res: Response): Promise<void>
     let targetAssignedUser = null;
     if (assignedUser) {
       if (role === 'admin') {
-        // Admin can assign to any user at creation time
+        // Admin can assign to any approved user at creation time
+        const targetUserDoc = await User.findById(assignedUser);
+        if (!targetUserDoc || targetUserDoc.isApproved === false) {
+          res.status(400).json({ message: 'Cannot assign task to an unapproved or pending user.' });
+          return;
+        }
         targetAssignedUser = assignedUser;
       } else {
         // Normal users can pre-assign to themselves but cannot assign to others
@@ -140,7 +145,16 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response): Promise<voi
     // Assignment rules: admin can reassign freely; normal users can only assign to themselves
     if (assignedUser !== undefined) {
       if (role === 'admin') {
-        task.assignedUser = assignedUser ? assignedUser : null;
+        if (assignedUser) {
+          const targetUserDoc = await User.findById(assignedUser);
+          if (!targetUserDoc || targetUserDoc.isApproved === false) {
+            res.status(400).json({ message: 'Cannot assign task to an unapproved or pending user.' });
+            return;
+          }
+          task.assignedUser = assignedUser;
+        } else {
+          task.assignedUser = null;
+        }
       } else {
         if (assignedUser === userId || assignedUser === null) {
           task.assignedUser = assignedUser ? userId : null;
@@ -224,11 +238,11 @@ router.patch('/:id/assign', async (req: AuthenticatedRequest, res: Response): Pr
     }
 
     if (role === 'admin') {
-      // Admin: can assign to any valid user or unassign entirely
+      // Admin: can assign to any valid approved user or unassign entirely
       if (targetUserId) {
         const userExists = await User.findById(targetUserId);
-        if (!userExists) {
-          res.status(404).json({ message: 'Target user not found.' });
+        if (!userExists || userExists.isApproved === false) {
+          res.status(400).json({ message: 'Cannot assign task to an unapproved or pending user.' });
           return;
         }
         task.assignedUser = targetUserId;

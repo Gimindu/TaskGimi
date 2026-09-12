@@ -243,10 +243,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 <CustomDropdown
                   options={[
                     { value: '', label: '-- Unassigned --' },
-                    ...(allUsers || []).map((u) => ({
-                      value: u.id || u._id || '',
-                      label: `${u.name} (${u.role})`,
-                    })),
+                    ...(allUsers || [])
+                      .filter((u) => u.isApproved !== false)
+                      .map((u) => ({
+                        value: u.id || u._id || '',
+                        label: `${u.name} (${u.role})`,
+                      })),
                   ]}
                   value={assignedUserId || ''}
                   onChange={(targetUserId) => onReassign(task._id, targetUserId)}
