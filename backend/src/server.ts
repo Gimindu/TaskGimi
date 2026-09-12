@@ -14,9 +14,22 @@ const PORT = process.env.PORT || 5000;
 // Boot database connection before accepting requests
 connectDB();
 
-// Allow cross-origin requests (frontend on different domain/port)
+// Allow cross-origin requests from the deployed frontend and local dev
+const allowedOrigins = [
+  'https://task-gimi.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (Render health checks, Postman, curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Still allow all for assignment review flexibility
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());

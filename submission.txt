@@ -1,0 +1,42 @@
+==================================================================
+LessTASK - FULL-STACK TASK MANAGEMENT SYSTEM SUBMISSION
+==================================================================
+
+1. GITHUB REPOSITORY LINK:
+   https://github.com/Gimindu/TaskGimi
+
+2. DEPLOYED APPLICATION URL:
+   - Live Web App (Frontend): https://task-gimi.vercel.app/
+   - Live Backend API:        https://taskgimi.onrender.com
+
+3. ADMINISTRATOR LOGIN CREDENTIALS:
+   - Email:    admin@taskgimi.com
+   - Password: Admin@123456
+
+4. NORMAL USER LOGIN CREDENTIALS:
+   - Email:    jane@example.com
+   - Password: Password123
+
+5. CANDIDATE CONTACT INFORMATION:
+   - Full Name:  Gimindu Genuka Athapaththu
+   - Email:      genuka56@gmail.com
+   - Phone:      0702992332
+   - Portfolio:  https://gimindu-portfolio-v1.vercel.app/
+
+==================================================================
+  Notes for Evaluators
+==================================================================
+
+- The backend is hosted on Render's free tier. If the API takes
+  10-30 seconds to respond on first visit, this is normal cold-start
+  behaviour (free tier spins down after inactivity). A warm-up notice
+  is displayed on the frontend landing page.
+
+- Administrator accounts are created exclusively via the seed script
+  (npm run seed:admin) and cannot be registered through the public
+  signup form.
+
+- New user registrations default to "pending" status and require
+  admin approval before login access is granted.
+
+==================================================================
